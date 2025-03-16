@@ -23,6 +23,7 @@ EventEase-MobileTeamSenpai/
 │   ├── App.tsx          # File gốc của ứng dụng
 │── .gitignore           # Các file cần bỏ qua khi commit vào Git
 │── app.json             # Cấu hình chung cho Expo
+|── firebaseConfig.ts    # Cấu hình firebase
 │── babel.config.js      # Cấu hình Babel
 │── package.json         # Danh sách thư viện và scripts
 │── tsconfig.json        # Cấu hình TypeScript
