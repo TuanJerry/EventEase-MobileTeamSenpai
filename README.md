@@ -5,7 +5,7 @@ A Event Recommendation Mobile App made by team Mobile Team Senpai - HCMUT BKU
 Copyright belonged to Mobile Team Senpai
 
 # Cấu trúc thư mục
-`
+````
 EventEase-MobileTeamSenpai/
 │── assets/              # Hình ảnh, biểu tượng, âm thanh, fonts
 │── src/                 # Code chính của ứng dụng
@@ -27,7 +27,7 @@ EventEase-MobileTeamSenpai/
 │── package.json         # Danh sách thư viện và scripts
 │── tsconfig.json        # Cấu hình TypeScript
 │── yarn.lock / package-lock.json # Quản lý phiên bản dependency
-`
+```
 
 # Cách chạy dự án
 1. Clone repository về máy:
