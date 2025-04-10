@@ -37,3 +37,4 @@ yarn-error.*
 
 # firebase
 firebaseConfig.ts
+.qodo
