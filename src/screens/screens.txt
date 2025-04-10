@@ -1,1 +1,6 @@
-screens
+screens:
+    Sign in
+    Sign up
+    Forgot
+    Verify
+    Reset
