@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "EventEase-MobileTeamSenpai",
-    "slug": "EventEase-MobileTeamSenpai",
+    "slug": "eventease-mobileteamsenpai",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -23,6 +23,12 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "ba0d9284-d3c7-4d8f-bb62-6a51d7fb3a21"
+      }
+    },
+    "owner": "mobileteamsenpai"
   }
 }
