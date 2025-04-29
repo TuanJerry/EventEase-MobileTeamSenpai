@@ -1,12 +1,12 @@
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native';
 import { StyleSheet, Text, View } from 'react-native';
-import UpdateEventScreen from './screens/CreateAndUpdateEvent/UpdateEventScreen';
+import FindEventsScreen from './screens/ListEvent/FindEventsScreen';
 
 export default function App() {
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <UpdateEventScreen />
+      <FindEventsScreen />
     </SafeAreaView>
   );
 }
