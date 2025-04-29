@@ -41,7 +41,9 @@ export default function DateTimePickerGroup({
       <View style={styles.half}>
         <Text style={styles.label}>Thời gian kết thúc</Text>
         <TouchableOpacity style={styles.input} onPress={() => setShowEndPicker(true)}>
-          <Text>{endTime ? formatDate(endTime) : 'dd/MM/yyyy HH:mm:ss'}</Text>
+          <Text style={{ color: startTime ? '#000' : '#999' }}>
+            {endTime ? formatDate(endTime) : 'dd/MM/yyyy HH:mm:ss'}
+          </Text>
         </TouchableOpacity>
         <DateTimePickerModal
           isVisible={showEndPicker}

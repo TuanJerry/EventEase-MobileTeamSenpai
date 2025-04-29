@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { ScrollView, TextInput, View, Text } from 'react-native';
-import { EventFormData } from '../types/event';
-import EventImagePicker from '../components/EventForm/EventImagePicker';
-import TagSelector from '../components/EventForm/TagSelector';
-import DateTimePickerGroup from '../components/EventForm/DateTimePickerGroup';
-import LocationInput from '../components/EventForm/LocationInput';
-import EventFormHeader from '../components/EventForm/EventFormHeader';
-import { styles } from '../components/EventForm/EventForm.style';
+import { EventFormData } from '../../types/event';
+import EventImagePicker from '../../components/EventForm/EventImagePicker';
+import TagSelector from '../../components/EventForm/TagSelector';
+import DateTimePickerGroup from '../../components/EventForm/DateTimePickerGroup';
+import LocationInput from '../../components/EventForm/LocationInput';
+import EventFormHeader from '../../components/EventForm/EventFormHeader';
+import { styles } from '../../components/EventForm/EventForm.style';
 
-export default function CreateEventScreen() {
+export default function UpdateEventScreen() {
   const [form, setForm] = useState<EventFormData>({
     title: '',
     description: '',
@@ -30,10 +30,10 @@ export default function CreateEventScreen() {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <EventFormHeader 
-        title="Tạo bài sự kiện"
+        title="Cập nhật sự kiện"
         onBackPress={() => console.log('Back pressed')} 
-        onSubmitPress={() => console.log('Create:', form)}
-        submitLabel="ĐĂNG"
+        onSubmitPress={() => console.log('update:', form)}
+        submitLabel="Cập nhật"
       />
 
       <Text style={styles.label}>Tiêu đề</Text>
