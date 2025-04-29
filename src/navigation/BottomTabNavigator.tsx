@@ -45,6 +45,7 @@ const BottomTabNavigator = () => {
         name="Home"
         component={HomeScreen}
         options={{
+          headerShown: false,
           tabBarIcon: ({ focused }) => (
             <Ionicons
               name={focused ? "home" : "home-outline"}
@@ -58,6 +59,7 @@ const BottomTabNavigator = () => {
         name="Calendar"
         component={CalendarScreen}
         options={{
+          headerShown: false,
           tabBarIcon: ({ focused }) => (
             <Ionicons
               name={focused ? "calendar" : "calendar-outline"}
@@ -71,6 +73,7 @@ const BottomTabNavigator = () => {
         name="AddEvent"
         component={CreateEventScreen}
         options={{
+          headerShown: false,
           tabBarIcon: ({ focused }) => (
             <Ionicons name="add" size={30} color="#FFFFFF" />
           ),
@@ -81,6 +84,7 @@ const BottomTabNavigator = () => {
         name="Location"
         component={LocationScreen}
         options={{
+          headerShown: false,
           tabBarIcon: ({ focused }) => (
             <Ionicons
               name={focused ? "location" : "location-outline"}
@@ -94,6 +98,7 @@ const BottomTabNavigator = () => {
         name="Profile"
         component={ProfileScreen}
         options={{
+          headerShown: false,
           tabBarIcon: ({ focused }) => (
             <Ionicons
               name={focused ? "person" : "person-outline"}
