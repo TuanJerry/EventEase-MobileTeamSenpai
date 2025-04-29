@@ -11,6 +11,7 @@ import ProfileScreen from "../screens/ProfileScreen";
 import AddEventScreen from "../screens/AddEventScreen";
 
 import { RootStackParamList } from "./types";
+import CreateEventScreen from "../screens/CreateAndUpdateEvent/CreateEventScreen";
 
 const Tab = createBottomTabNavigator<RootStackParamList>();
 
@@ -69,7 +70,7 @@ const BottomTabNavigator = () => {
       />
       <Tab.Screen
         name="AddEvent"
-        component={AddEventScreen}
+        component={CreateEventScreen}
         options={{
           tabBarIcon: ({ focused }) => (
             <Ionicons name="add" size={30} color="#FFFFFF" />
