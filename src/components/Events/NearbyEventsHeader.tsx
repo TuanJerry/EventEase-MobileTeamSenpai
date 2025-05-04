@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { ArrowLeft, SlidersHorizontal} from 'lucide-react-native';
 import { StyleSheet } from 'react-native';
 
 type Props = {
@@ -13,13 +13,13 @@ export default function NearbyEventsHeader({ title, onBackPress, onFilterPress }
   return (
     <View style={styles.headerContainer}>
       <TouchableOpacity onPress={onBackPress}>
-        <Ionicons name="arrow-back" size={24} color="#1C1B1F" />
+        <ArrowLeft size={24} color="#1C1B1F" />
       </TouchableOpacity>
 
       <Text style={styles.title}>{title}</Text>
 
       <TouchableOpacity style={styles.filterButton} onPress={onFilterPress}>
-        <Ionicons name="filter" size={16} color="#fff" />
+        <SlidersHorizontal size={16} color="#fff" />
         <Text style={styles.filterText}>Bộ lọc</Text>
       </TouchableOpacity>
     </View>

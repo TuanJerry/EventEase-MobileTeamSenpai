@@ -62,13 +62,10 @@ export default function CreateEventScreen() {
       <DateTimePickerGroup
         startTime={form.startTime || undefined}
         endTime={form.endTime || undefined}
-        showStartPicker={showStartPicker}
-        showEndPicker={showEndPicker}
-        setShowStartPicker={setShowStartPicker}
-        setShowEndPicker={setShowEndPicker}
         setStartTime={(startTime) => setForm({ ...form, startTime })}
         setEndTime={(endTime) => setForm({ ...form, endTime })}
       />
+
 
       <View style={styles.row}>
         <View style={styles.half}>

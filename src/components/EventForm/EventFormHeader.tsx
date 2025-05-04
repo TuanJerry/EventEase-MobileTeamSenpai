@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { ArrowLeft} from 'lucide-react-native';
 import { styles } from './EventForm.style';
 
 type Props = {
@@ -14,7 +14,7 @@ export default function EventFormHeader({ title, onBackPress, onSubmitPress, sub
   return (
     <View style={styles.headerContainer}>
       <TouchableOpacity onPress={onBackPress}>
-        <Ionicons name="arrow-back" size={24} color="#333" />
+        <ArrowLeft size={24} color="#333" />
       </TouchableOpacity>
       <Text style={styles.headerTitle}>{title}</Text>
       <TouchableOpacity style={styles.headerButton} onPress={onSubmitPress}>

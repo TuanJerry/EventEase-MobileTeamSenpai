@@ -1,18 +1,17 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { View, TouchableOpacity, StyleSheet } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Home, Calendar, MapPin, User, Plus } from "lucide-react-native";
+import { useNavigationState } from "@react-navigation/native";
 
 // Screens
 import HomeScreen from "../screens/HomeScreen";
 import CalendarScreen from "../screens/CalendarScreen";
 import LocationScreen from "../screens/LocationScreen";
-import ProfileScreen from "../screens/ProfileScreen";
-
-import { RootStackParamList } from "./types";
+import ProfileStackNavigator from './ProfileStackNavigator';
 import CreateEventScreen from "../screens/CreateAndUpdateEvent/CreateEventScreen";
 
-const Tab = createBottomTabNavigator<RootStackParamList>();
+const Tab = createBottomTabNavigator();
 
 const CustomTabBarButton = ({ children, onPress }: any) => (
   <TouchableOpacity
@@ -27,10 +26,10 @@ const CustomTabBarButton = ({ children, onPress }: any) => (
   </TouchableOpacity>
 );
 
-const BottomTabNavigator = () => {
+export default function BottomTabNavigator() {
   return (
     <Tab.Navigator
-      screenOptions={{
+      screenOptions={({ route }) => ({
         tabBarShowLabel: false,
         tabBarStyle: {
           position: "absolute",
@@ -38,8 +37,10 @@ const BottomTabNavigator = () => {
           borderTopLeftRadius: 15,
           borderTopRightRadius: 15,
           height: 60,
+          elevation: 0,
+          borderTopWidth: 0,
         },
-      }}
+      })}
     >
       <Tab.Screen
         name="Home"
@@ -47,11 +48,7 @@ const BottomTabNavigator = () => {
         options={{
           headerShown: false,
           tabBarIcon: ({ focused }) => (
-            <Ionicons
-              name={focused ? "home" : "home-outline"}
-              size={24}
-              color={focused ? "#4B7BE5" : "#748c94"}
-            />
+            <Home color={focused ? "#4B7BE5" : "#748c94"} size={24} />
           ),
         }}
       />
@@ -61,23 +58,23 @@ const BottomTabNavigator = () => {
         options={{
           headerShown: false,
           tabBarIcon: ({ focused }) => (
-            <Ionicons
-              name={focused ? "calendar" : "calendar-outline"}
-              size={24}
-              color={focused ? "#4B7BE5" : "#748c94"}
-            />
+            <Calendar color={focused ? "#4B7BE5" : "#748c94"} size={24} />
           ),
         }}
       />
       <Tab.Screen
         name="AddEvent"
         component={CreateEventScreen}
-        options={{
-          headerShown: false,
-          tabBarIcon: ({ focused }) => (
-            <Ionicons name="add" size={30} color="#FFFFFF" />
-          ),
-          tabBarButton: (props) => <CustomTabBarButton {...props} />,
+        options={({ navigation }) => {
+          const state = navigation.getState();
+          const currentRoute = state.routes[state.index];
+          const isFocused = currentRoute.name === "AddEvent";
+
+          return {
+            headerShown: false,
+            tabBarIcon: () => <Plus color="#fff" size={30} />,
+            tabBarButton: isFocused ? () => null : (props) => <CustomTabBarButton {...props} />,
+          };
         }}
       />
       <Tab.Screen
@@ -86,31 +83,23 @@ const BottomTabNavigator = () => {
         options={{
           headerShown: false,
           tabBarIcon: ({ focused }) => (
-            <Ionicons
-              name={focused ? "location" : "location-outline"}
-              size={24}
-              color={focused ? "#4B7BE5" : "#748c94"}
-            />
+            <MapPin color={focused ? "#4B7BE5" : "#748c94"} size={24} />
           ),
         }}
       />
       <Tab.Screen
         name="Profile"
-        component={ProfileScreen}
+        component={ProfileStackNavigator}
         options={{
           headerShown: false,
           tabBarIcon: ({ focused }) => (
-            <Ionicons
-              name={focused ? "person" : "person-outline"}
-              size={24}
-              color={focused ? "#4B7BE5" : "#748c94"}
-            />
+            <User color={focused ? "#4B7BE5" : "#748c94"} size={24} />
           ),
         }}
       />
     </Tab.Navigator>
   );
-};
+}
 
 const styles = StyleSheet.create({
   addButton: {
@@ -130,5 +119,3 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
 });
-
-export default BottomTabNavigator;
