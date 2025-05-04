@@ -1,23 +1,29 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
-import { ArrowLeft, SlidersHorizontal} from 'lucide-react-native';
-import { StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { ArrowLeft, SlidersHorizontal } from 'lucide-react-native';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
 
 type Props = {
   title: string;
-  onBackPress: () => void;
   onFilterPress: () => void;
 };
 
-export default function NearbyEventsHeader({ title, onBackPress, onFilterPress }: Props) {
+export default function NearbyEventsHeader({ title, onFilterPress }: Props) {
+  const navigation = useNavigation<NavigationProp<any>>();
+
   return (
     <View style={styles.headerContainer}>
-      <TouchableOpacity onPress={onBackPress}>
-        <ArrowLeft size={24} color="#1C1B1F" />
+      {/* Nút quay lại */}
+      <TouchableOpacity onPress={() => { navigation.goBack() }} >
+        <ArrowLeft size={24} color="#000" />
       </TouchableOpacity>
 
-      <Text style={styles.title}>{title}</Text>
+      {/* Tiêu đề căn giữa */}
+      <View style={styles.centerTitle}>
+        <Text style={styles.title}>{title}</Text>
+      </View>
 
+      {/* Nút bộ lọc */}
       <TouchableOpacity style={styles.filterButton} onPress={onFilterPress}>
         <SlidersHorizontal size={16} color="#fff" />
         <Text style={styles.filterText}>Bộ lọc</Text>
@@ -29,20 +35,20 @@ export default function NearbyEventsHeader({ title, onBackPress, onFilterPress }
 const styles = StyleSheet.create({
   headerContainer: {
     flexDirection: 'row',
-    paddingHorizontal: 16,
-    paddingVertical: 14,
     alignItems: 'center',
     justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
     backgroundColor: '#fff',
+  },
+  centerTitle: {
+    flex: 1,
+    alignItems: 'center',
   },
   title: {
     fontSize: 18,
     fontWeight: '600',
     color: '#1C1B1F',
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    textAlign: 'center',
   },
   filterButton: {
     flexDirection: 'row',

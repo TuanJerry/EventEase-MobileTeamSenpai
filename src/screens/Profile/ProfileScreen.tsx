@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native';
-import { User, BookText, Bookmark, CalendarDays, Eye, LogOut } from 'lucide-react-native';
+import { User, BookText, Bookmark, CalendarDays, Inbox, LogOut } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 
 
@@ -38,9 +38,21 @@ export default function ProfileScreen() {
         onPress={() => navigation.navigate('ManagePosts')}
       />
 
-      <MenuItem icon={<Bookmark size={20} color="#000" />} label="Sự kiện yêu thích" />
-      <MenuItem icon={<CalendarDays size={20} color="#000" />} label="Sự kiện đã tham gia" />
-      <MenuItem icon={<Eye size={20} color="#000" />} label="Sự kiện theo dõi" />
+      <MenuItem 
+        icon={<Bookmark size={20} color="#000" />} 
+        label="Sự kiện yêu thích" 
+        onPress={() => navigation.navigate('FavoriteEvents')}
+      />
+      <MenuItem 
+        icon={<CalendarDays size={20} color="#000" />} 
+        label="Sự kiện đã tham gia" 
+        onPress={() => navigation.navigate('JoinedEvents')}
+      />
+      <MenuItem 
+        icon={<Inbox size={20} color="#000" />} 
+        label="Sự kiện đang theo dõi" 
+        onPress={() => navigation.navigate('TrackedEvents')}
+      />
 
       {/* Logout */}
       <TouchableOpacity style={styles.logoutButton}>
