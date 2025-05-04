@@ -1,60 +1,90 @@
-import React from 'react';
-import { View, TouchableOpacity, Text } from 'react-native';
-import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import React, { useState } from 'react';
+import { View, Text, TextInput } from 'react-native';
 import { styles } from './EventForm.style';
-import { formatDate } from '../../utils/formatDate';
 
 type Props = {
   startTime: Date | undefined;
   endTime: Date | undefined;
-  showStartPicker: boolean;
-  showEndPicker: boolean;
-  setShowStartPicker: (show: boolean) => void;
-  setShowEndPicker: (show: boolean) => void;
   setStartTime: (date: Date) => void;
   setEndTime: (date: Date) => void;
 };
 
 export default function DateTimePickerGroup({
-  startTime, endTime, showStartPicker, showEndPicker, setShowStartPicker, setShowEndPicker, setStartTime, setEndTime
+  startTime,
+  endTime,
+  setStartTime,
+  setEndTime,
 }: Props) {
+  const [startInput, setStartInput] = useState(startTime ? formatDate(startTime) : '');
+  const [endInput, setEndInput] = useState(endTime ? formatDate(endTime) : '');
+  const [startError, setStartError] = useState('');
+  const [endError, setEndError] = useState('');
+
+  const handleStartBlur = () => {
+    const parsed = parseDate(startInput);
+    if (parsed) {
+      setStartTime(parsed);
+      setStartError('');
+    } else {
+      setStartError('Sai định dạng. Dạng đúng: dd/MM/yyyy HH:mm:ss');
+    }
+  };
+
+  const handleEndBlur = () => {
+    const parsed = parseDate(endInput);
+    if (parsed) {
+      setEndTime(parsed);
+      setEndError('');
+    } else {
+      setEndError('Sai định dạng. Dạng đúng: dd/MM/yyyy HH:mm:ss');
+    }
+  };
+
   return (
     <View style={styles.row}>
       <View style={styles.half}>
         <Text style={styles.label}>Thời gian bắt đầu</Text>
-        <TouchableOpacity style={styles.input} onPress={() => setShowStartPicker(true)}>
-          <Text style={{ color: startTime ? '#000' : '#999' }}>
-            {startTime ? formatDate(startTime) : 'dd/MM/yyyy HH:mm:ss'}
-          </Text>
-        </TouchableOpacity>
-        <DateTimePickerModal
-          isVisible={showStartPicker}
-          mode="datetime"
-          onConfirm={(date) => {
-            setStartTime(date);
-            setShowStartPicker(false);
-          }}
-          onCancel={() => setShowStartPicker(false)}
+        <TextInput
+          style={styles.input}
+          placeholder="dd/MM/yyyy HH:mm:ss"
+          value={startInput}
+          onChangeText={setStartInput}
+          onBlur={handleStartBlur}
         />
+        {startError ? <Text style={{ color: 'red', fontSize: 12 }}>{startError}</Text> : null}
       </View>
 
       <View style={styles.half}>
         <Text style={styles.label}>Thời gian kết thúc</Text>
-        <TouchableOpacity style={styles.input} onPress={() => setShowEndPicker(true)}>
-          <Text style={{ color: startTime ? '#000' : '#999' }}>
-            {endTime ? formatDate(endTime) : 'dd/MM/yyyy HH:mm:ss'}
-          </Text>
-        </TouchableOpacity>
-        <DateTimePickerModal
-          isVisible={showEndPicker}
-          mode="datetime"
-          onConfirm={(date) => {
-            setEndTime(date);
-            setShowEndPicker(false);
-          }}
-          onCancel={() => setShowEndPicker(false)}
+        <TextInput
+          style={styles.input}
+          placeholder="dd/MM/yyyy HH:mm:ss"
+          value={endInput}
+          onChangeText={setEndInput}
+          onBlur={handleEndBlur}
         />
+        {endError ? <Text style={{ color: 'red', fontSize: 12 }}>{endError}</Text> : null}
       </View>
     </View>
   );
+}
+
+function formatDate(date: Date): string {
+  const dd = String(date.getDate()).padStart(2, '0');
+  const MM = String(date.getMonth() + 1).padStart(2, '0');
+  const yyyy = date.getFullYear();
+  const HH = String(date.getHours()).padStart(2, '0');
+  const mm = String(date.getMinutes()).padStart(2, '0');
+  const ss = String(date.getSeconds()).padStart(2, '0');
+  return `${dd}/${MM}/${yyyy} ${HH}:${mm}:${ss}`;
+}
+
+function parseDate(text: string): Date | null {
+  const regex = /^(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2}):(\d{2})$/;
+  const match = text.match(regex);
+  if (!match) return null;
+
+  const [, dd, MM, yyyy, HH, mm, ss] = match.map(Number);
+  const date = new Date(yyyy, MM - 1, dd, HH, mm, ss);
+  return isNaN(date.getTime()) ? null : date;
 }
