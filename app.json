@@ -14,7 +14,6 @@
     },
     "ios": {
       "supportsTablet": true
-      
     },
     "android": {
       "adaptiveIcon": {
@@ -30,6 +29,16 @@
         "projectId": "ba0d9284-d3c7-4d8f-bb62-6a51d7fb3a21"
       }
     },
-    "owner": "mobileteamsenpai"
+    "owner": "mobileteamsenpai",
+    "plugins": [
+      [
+        "@sentry/react-native/expo",
+        {
+          "url": "https://sentry.io/",
+          "project": "event-ease",
+          "organization": "mobile-team-senpai"
+        }
+      ]
+    ]
   }
 }

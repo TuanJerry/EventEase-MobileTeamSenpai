@@ -1,0 +1,41 @@
+npm error code ERESOLVE
+npm error ERESOLVE could not resolve
+npm error
+npm error While resolving: @react-navigation/bottom-tabs@7.3.11
+npm error Found: react-native@0.76.7
+npm error node_modules/react-native
+npm error   peer react-native@"*" from @expo/metro-runtime@4.0.1
+npm error   node_modules/@expo/metro-runtime
+npm error     peerOptional @expo/metro-runtime@"*" from expo@52.0.46
+npm error     node_modules/expo
+npm error       peerOptional expo@">=50.0.0" from @react-native-community/datetimepicker@8.3.0
+npm error       node_modules/@react-native-community/datetimepicker
+npm error         peer @react-native-community/datetimepicker@">=6.7.0" from react-native-modal-datetime-picker@18.0.0
+npm error         node_modules/react-native-modal-datetime-picker
+npm error         1 more (the root project)
+npm error       10 more (expo-asset, expo-constants, expo-file-system, expo-font, ...)
+npm error     @expo/metro-runtime@"~4.0.1" from the root project
+npm error   peer react-native@"*" from @expo/vector-icons@14.1.0
+npm error   node_modules/@expo/vector-icons
+npm error     @expo/vector-icons@"^14.0.0" from expo@52.0.46
+npm error   19 more (@react-native-community/datetimepicker, ...)
+npm error
+npm error Could not resolve dependency:
+npm error peer react-native@"0.79.2" from @react-navigation/bottom-tabs@7.3.11
+npm error node_modules/@react-navigation/bottom-tabs
+npm error   @react-navigation/bottom-tabs@"^7.3.11" from the root project
+npm error
+npm error Conflicting peer dependency: react-native@0.79.2
+npm error node_modules/react-native
+npm error   peer react-native@"0.79.2" from @react-navigation/bottom-tabs@7.3.11
+npm error   node_modules/@react-navigation/bottom-tabs
+npm error     @react-navigation/bottom-tabs@"^7.3.11" from the root project
+npm error
+npm error Fix the upstream dependency conflict, or retry
+npm error this command with --force or --legacy-peer-deps
+npm error to accept an incorrect (and potentially broken) dependency resolution.
+npm error
+npm error
+npm error For a full report see:
+npm error C:\Users\ACER\AppData\Local\npm-cache\_logs\2025-05-08T06_08_36_616Z-eresolve-report.txt
+npm error A complete log of this run can be found in: C:\Users\ACER\AppData\Local\npm-cache\_logs\2025-05-08T06_08_36_616Z-debug-0.log
