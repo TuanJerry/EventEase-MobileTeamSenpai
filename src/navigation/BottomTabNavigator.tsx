@@ -5,7 +5,7 @@ import { Home, Calendar, MapPin, User, Plus } from "lucide-react-native";
 import { useNavigationState } from "@react-navigation/native";
 
 // Screens
-import HomeScreen from "../screens/HomeScreen";
+import HomeScreen from "../screens/Home/HomeScreen";
 import CalendarScreen from "../screens/CalendarScreen";
 import LocationScreen from "../screens/LocationScreen";
 import ProfileStackNavigator from './ProfileStackNavigator';
