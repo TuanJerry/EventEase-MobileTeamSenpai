@@ -4,6 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import BottomTabNavigator from './navigation/BottomTabNavigator';
+import "../global.css"; // Import global styles
 
 export default function App() {
   return (
