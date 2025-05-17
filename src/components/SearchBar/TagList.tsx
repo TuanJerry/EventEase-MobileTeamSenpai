@@ -13,8 +13,8 @@ const TagList: React.FC<TagListProps> = ({ tags }) => {
                 const IconComponent = tag.icon;
                 return (
                     <View key={index} style={[styles.tag, { backgroundColor: tag.color }]}>
-                    <IconComponent width={24} height={24} color="#fff" />
-                    <Text style={styles.tagText}>{tag.name}</Text>
+                        <IconComponent width={24} height={24} color="#fff" />
+                        <Text style={styles.tagText}>{tag.name}</Text>
                     </View>
                 );
                 })}

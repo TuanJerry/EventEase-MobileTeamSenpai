@@ -77,7 +77,6 @@ const styles = StyleSheet.create({
         gap: 0,
         position: 'relative',
         paddingBottom: 32,
-        marginBottom: 30,
         borderBottomLeftRadius: 30,
         borderBottomRightRadius: 30,
     },
@@ -170,6 +169,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: '100%',
         paddingBottom: 16,
+        zIndex: 10
     },
 });
 

@@ -2,16 +2,7 @@ import { View, Text, StyleSheet, Image, TouchableOpacity, TouchableHighlight, To
 import React from 'react';
 import Icon from 'react-native-vector-icons/FontAwesome6';
 import { extractTime, TimeParts } from '../../utils/extractTime';
-
-interface EventCardProps {
-    id: number;
-    title: string;
-    date: string;
-    backgroundImage: string;
-    totalParticipants: number;
-    avatars: string[];
-    location: string;
-}
+import { EventCardProps } from '../../types/event';
 
 const EventCard = ({ title, date, backgroundImage, totalParticipants, avatars, location }: EventCardProps) => {
     const maxVisible = 3;
@@ -33,7 +24,7 @@ const EventCard = ({ title, date, backgroundImage, totalParticipants, avatars, l
                 <Image source={{ uri: backgroundImage }} className="w-full h-full rounded-2xl" resizeMode='cover'/>
             </View>
 
-            <Text className="text-2xl font-semibold text-black truncate w-11/12" numberOfLines={1}>{title}</Text>
+            <Text className="text-xl font-semibold text-black truncate w-11/12" numberOfLines={1}>{title}</Text>
 
             <View className="flex-row items-center">
                 <View style={styles.avatarGroup}>
@@ -53,7 +44,7 @@ const EventCard = ({ title, date, backgroundImage, totalParticipants, avatars, l
 
             <View className="flex-row items-center w-11/12">
                 <Icon name="location-dot" size={18} color="#9594a4" />
-                <Text className="truncate" style={styles.locationText} numberOfLines={1}>{location}</Text>
+                <Text className="truncate text-lg" style={styles.locationText} numberOfLines={1}>{location}</Text>
             </View>
         </View>
     );
@@ -61,7 +52,7 @@ const EventCard = ({ title, date, backgroundImage, totalParticipants, avatars, l
 
 const styles = StyleSheet.create({
     container: {
-        width: 290,
+        width: 260,
     },
     avatarGroup: {
         flexDirection: 'row',
@@ -81,7 +72,6 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
     locationText: {
-        fontSize: 18,
         color: '#9594a4',
         marginLeft: 8,
     },
