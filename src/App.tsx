@@ -4,8 +4,9 @@ import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 
-import {createStackNavigator} from '@react-navigation/stack';
-import BottomTabNavigator from './navigation/BottomTabNavigator';
+// import {createStackNavigator} from '@react-navigation/stack';
+// import BottomTabNavigator from './navigation/BottomTabNavigator';
+import RootNavigator from './navigation/RootNavigator';
 import * as Sentry from '@sentry/react-native';
 
 Sentry.init({
@@ -24,20 +25,16 @@ Sentry.init({
   // spotlight: __DEV__,
 });
 
-const Stack = createStackNavigator();
+// const Stack = createStackNavigator();
 
 export default Sentry.wrap(function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   return (
     <SafeAreaProvider>
       <NavigationContainer>
         <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
           <StatusBar style="dark" translucent backgroundColor="transparent" />
           {/* <BottomTabNavigator /> */}
-          <Stack.Navigator screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="Home" component={BottomTabNavigator} />
-            {/* <Stack.Screen name="Login" component={} /> */}
-          </Stack.Navigator>
+          <RootNavigator/>
         </SafeAreaView>
       </NavigationContainer>
     </SafeAreaProvider>
