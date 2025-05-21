@@ -39,3 +39,5 @@ nativewind-env.d.ts
 
 # firebase
 firebaseConfig.ts
+
+.env.local
