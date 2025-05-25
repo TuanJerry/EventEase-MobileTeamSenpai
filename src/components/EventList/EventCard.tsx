@@ -7,8 +7,6 @@ import { EventCardProps } from '../../types/event';
 const EventCard = ({ title, date, backgroundImage, totalParticipants, avatars, location }: EventCardProps) => {
     const maxVisible = 3;
     const displayedAvatars = avatars.slice(0, maxVisible);
-
-
     const timeParts : TimeParts = extractTime(date);
 
     return (
