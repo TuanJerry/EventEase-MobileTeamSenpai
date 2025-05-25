@@ -5,8 +5,13 @@ import HeaderBack from "../../components/HeaderBackButton";
 import InputField from "../../components/Authentication/AuthInputField";
 import Button from "../../components/Authentication/AuthButton";
 import Logo from "../../../assets/Logo_2.svg";
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-export default function ForgotPasswordScreen({ navigation }) {
+type ForgotScreenProps = {
+  navigation: NativeStackNavigationProp<any>;
+};
+
+export default function ForgotPasswordScreen({ navigation }: ForgotScreenProps) {
     return (
       <View style={styles.container}>
         {/* Quay lại */}
@@ -34,7 +39,7 @@ export default function ForgotPasswordScreen({ navigation }) {
 
         {/* Nút gửi */}
         <Button
-          title="     GỬI"
+          title="GỬI"
           onPress={() => {
             // Xử lý gửi email ở đây
             navigation.navigate("VerifyCode");

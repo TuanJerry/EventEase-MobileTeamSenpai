@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ScrollView, TextInput, View, Text } from 'react-native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { EventFormData } from '../../types/event';
 import EventImagePicker from '../../components/EventForm/EventImagePicker';
 import TagSelector from '../../components/EventForm/TagSelector';
@@ -8,7 +9,11 @@ import LocationInput from '../../components/EventForm/LocationInput';
 import EventFormHeader from '../../components/EventForm/EventFormHeader';
 import { styles } from '../../components/EventForm/EventForm.style';
 
-export default function CreateEventScreen() {
+type CreateEventScreenProps = {
+  navigation: NativeStackNavigationProp<any>;
+};
+
+export default function CreateEventScreen({ navigation }: CreateEventScreenProps) {
   const [form, setForm] = useState<EventFormData>({
     title: '',
     description: '',
@@ -31,7 +36,7 @@ export default function CreateEventScreen() {
     <ScrollView contentContainerStyle={styles.container}>
       <EventFormHeader 
         title="Tạo bài sự kiện"
-        onBackPress={() => console.log('Back pressed')} 
+        onBackPress={() => navigation.goBack()} 
         onSubmitPress={() => console.log('Create:', form)}
         submitLabel="ĐĂNG"
       />

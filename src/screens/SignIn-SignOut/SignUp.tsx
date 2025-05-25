@@ -12,12 +12,17 @@ import HeaderBack from "../../components/HeaderBackButton";
 import InputField from "../../components/Authentication/AuthInputField";
 import Button from "../../components/Authentication/AuthButton";
 import SocialButton from "../../components/Authentication/SocialButton";
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import Logo from "../../../assets/Logo_2.svg";
 import GoogleLogo from "../../../assets/Google.svg";
 import FacebookLogo from "../../../assets/Facebook.svg";
 
-export default function SignUpScreen({ navigation }) {
+type SignUpScreenProps = {
+  navigation: NativeStackNavigationProp<any>;
+};
+
+export default function SignUpScreen({ navigation }: SignUpScreenProps) {
     const [fullName, setFullName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -78,7 +83,7 @@ export default function SignUpScreen({ navigation }) {
 
           <View style={{ height: 30 }} />
 
-          <Button title="      ĐĂNG KÝ" onPress={handleSignUp} />
+          <Button title="ĐĂNG KÝ" onPress={handleSignUp} />
 
           <Text style={styles.orText}>Hoặc</Text>
 

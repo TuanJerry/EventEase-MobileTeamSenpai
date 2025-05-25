@@ -1,21 +1,73 @@
-import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useContext, useEffect, useState } from 'react';
+import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { User, BookText, Bookmark, CalendarDays, Inbox, LogOut } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
-
+import { AuthContext } from '../../navigation/RootNavigator';
+import { authService } from '../../services/authService';
+import { userService } from '../../services/userService';
+import { UserProfile } from '../../types/user';
 
 export default function ProfileScreen() {
-
   const navigation = useNavigation<any>();
+  const { setIsLoggedIn } = useContext(AuthContext);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchUserProfile = async () => {
+    try {
+      const userData = await userService.getMyProfile();
+      setProfile(userData);
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        Alert.alert(
+          "Phiên đăng nhập hết hạn",
+          "Vui lòng đăng nhập lại",
+          [
+            {
+              text: "OK",
+              onPress: async () => {
+                await authService.logout();
+                setIsLoggedIn(false);
+                navigation.replace("SignIn");
+              }
+            }
+          ]
+        );
+      } else {
+        Alert.alert("Lỗi", "Không thể lấy thông tin người dùng");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserProfile();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await authService.logout();
+      navigation.replace("SignIn");
+    } catch (error) {
+      Alert.alert("Lỗi", "Không thể đăng xuất, vui lòng thử lại");
+    }
+    setIsLoggedIn(false);
+  };
 
   return (
     <ScrollView contentContainerStyle={{flexGrow: 1, backgroundColor: '#fff', padding: 20,}}>
       <View style={styles.header}>
-        <Image source={{ uri: 'https://static-images.vnncdn.net/vps_images_publish/000001/000003/2025/1/20/ngan-ngam-thay-ca-si-jack-j97-72912.jpg?width=0&s=ER3DsZM0IogAHY5-stcutw' }} style={styles.avatar} />
-        <Text style={styles.name}>Nguyễn Cao Tuấn</Text>
-        <Text style={styles.birth}>31/02/2003</Text>
+        <Image 
+          source={{ 
+            uri: profile?.avatar || 'https://cellphones.com.vn/sforum/wp-content/uploads/2023/10/avatar-trang-2.jpg' 
+          }} 
+          style={styles.avatar} 
+        />
+        <Text style={styles.name}>{profile ? `${profile.firstName} ${profile.lastName}` : 'Loading...'}</Text>
+        <Text style={styles.birth}>{profile?.dateOfBirth || 'Loading...'}</Text>
         <View style={styles.emailBadge}>
-          <Text style={styles.email}>tuancao.nguyen@gmail.com</Text>
+          <Text style={styles.email}>{profile?.email || 'Loading...'}</Text>
         </View>
         <View style={styles.followRow}>
           <View style={styles.followBox}>
@@ -37,7 +89,6 @@ export default function ProfileScreen() {
         label="Quản lý bài đăng"
         onPress={() => navigation.navigate('ManagePosts')}
       />
-
       <MenuItem 
         icon={<Bookmark size={20} color="#000" />} 
         label="Sự kiện yêu thích" 
@@ -55,7 +106,10 @@ export default function ProfileScreen() {
       />
 
       {/* Logout */}
-      <TouchableOpacity style={styles.logoutButton}>
+      <TouchableOpacity 
+        style={styles.logoutButton}
+        onPress={handleLogout}
+      >
         <LogOut size={18} color="#4B49C8" />
         <Text style={styles.logoutText}>Đăng xuất</Text>
       </TouchableOpacity>
@@ -63,7 +117,7 @@ export default function ProfileScreen() {
   );
 }
 
-function MenuItem({ icon, label, onPress }: { icon: JSX.Element; label: string; onPress?: () => void }) {
+function MenuItem({ icon, label, onPress }: { readonly icon: React.ReactNode; readonly label: string; readonly onPress?: () => void }) {
   return (
     <TouchableOpacity style={styles.menuItem} onPress={onPress}>
       {icon}
@@ -71,7 +125,6 @@ function MenuItem({ icon, label, onPress }: { icon: JSX.Element; label: string; 
     </TouchableOpacity>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {
