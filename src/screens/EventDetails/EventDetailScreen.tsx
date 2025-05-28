@@ -1,68 +1,190 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, ActivityIndicator, FlatList, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import ParticipantsBox from '../../components/EventDetails/ParticipantsBox';
+import { eventService } from '../../services/eventService';
+import { Event } from '../../types/event';
+import { useRoute, useNavigation } from '@react-navigation/native';
 
 export default function EventDetailScreen() {
-    const avatarUrls = [
-        'https://randomuser.me/api/portraits/women/44.jpg',
-        'https://randomuser.me/api/portraits/men/32.jpg',
-        'https://randomuser.me/api/portraits/men/75.jpg',
-      ];
-      
-      const [participants, setParticipants] = useState(686);
-      const [joined, setJoined] = useState(false);
-    
-      const handleJoin = () => {
-        if (joined) {
-          setParticipants((prev) => prev - 1);
-        } else {
-          setParticipants((prev) => prev + 1);
-        }
-        setJoined(!joined);
-      };
+  const route = useRoute();
+  const navigation = useNavigation();
+  const { eventId } = route.params as { eventId: string };
+  
+  const [event, setEvent] = useState<Event | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [participants, setParticipants] = useState(0);
+  const [joined, setJoined] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const flatListRef = useRef<FlatList>(null);
+  const screenWidth = Dimensions.get('window').width;
+
+  useEffect(() => {
+    fetchEventDetail();
+  }, [eventId]);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (event?.images && event.images.length > 1) {
+      interval = setInterval(() => {
+        const nextIndex = (currentIndex + 1) % event.images.length;
+        setCurrentIndex(nextIndex);
+        flatListRef.current?.scrollToIndex({
+          index: nextIndex,
+          animated: true
+        });
+      }, 3000);
+    }
+    return () => clearInterval(interval);
+  }, [currentIndex, event?.images]);
+
+  const fetchEventDetail = async () => {
+    try {
+      setLoading(true);
+      const data = await eventService.getEventDetail(eventId);
+      if (data) {
+        setEvent(data);
+        setParticipants(data.participantNumber);
+        setError(null);
+      } else {
+        setError('Không tìm thấy thông tin sự kiện');
+      }
+    } catch (err) {
+      setError('Không thể tải thông tin sự kiện');
+      console.error('Error fetching event detail:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleJoin = () => {
+    if (joined) {
+      setParticipants((prev) => prev - 1);
+    } else {
+      setParticipants((prev) => prev + 1);
+    }
+    setJoined(!joined);
+  };
+
+  const renderImageItem = ({ item }: { item: { id: string; link: string } }) => (
+    <Image
+      source={{ uri: item.link }}
+      style={[styles.bannerImage, { width: screenWidth }]}
+      resizeMode="cover"
+    />
+  );
+
+  const renderDots = () => {
+    if (!event?.images) return null;
+    return (
+      <View style={styles.paginationContainer}>
+        {event.images.map((_, index) => (
+          <View
+            key={index}
+            style={[
+              styles.paginationDot,
+              index === currentIndex && styles.paginationDotActive
+            ]}
+          />
+        ))}
+      </View>
+    );
+  };
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#4B49C8" />
+      </View>
+    );
+  }
+
+  if (error || !event) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>{error || 'Không tìm thấy thông tin sự kiện'}</Text>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity style={[styles.retryButton, styles.backButton]} onPress={() => navigation.goBack()}>
+            <Text style={styles.retryText}>Quay về</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.retryButton} onPress={fetchEventDetail}>
+            <Text style={styles.retryText}>Thử lại</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return {
+      date: date.toLocaleDateString('vi-VN'),
+      time: date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
+    };
+  };
+
+  const startDate = formatDate(event.startTime);
+  const endDate = formatDate(event.endTime);
 
   return (
     <ScrollView style={styles.container}> 
       {/* Banner + Tham gia box */}
       <View style={{ position: 'relative' }}>
-        <Image
-          source={{ uri: 'https://image.nhandan.vn/w800/Uploaded/2025/igpcvcvjntc8510/2022_07_14/photo-7-1656493964692812714551-8127.jpg.webp' }}
-          style={styles.bannerImage}
+        <FlatList
+          ref={flatListRef}
+          data={event?.images}
+          renderItem={renderImageItem}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          onMomentumScrollEnd={(e) => {
+            const newIndex = Math.round(e.nativeEvent.contentOffset.x / screenWidth);
+            setCurrentIndex(newIndex);
+          }}
+          keyExtractor={(item) => item.id}
         />
+        {renderDots()}
 
         <View style={styles.headerOverlay}>
-            <TouchableOpacity style={styles.iconButton} onPress={() => console.log('Go back')}>
+          <TouchableOpacity 
+            style={styles.iconButton} 
+            onPress={() => navigation.goBack()}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
             <Ionicons name="arrow-back" size={24} color="#fff" />
-            </TouchableOpacity>
+          </TouchableOpacity>
 
-            <TouchableOpacity style={styles.iconButton} onPress={() => console.log('Bookmark')}>
+          <TouchableOpacity 
+            style={styles.iconButton} 
+            onPress={() => console.log('Bookmark')}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
             <Ionicons name="bookmark-outline" size={24} color="#fff" />
-            </TouchableOpacity>
+          </TouchableOpacity>
         </View>
 
-
         <View style={styles.participantWrapper}>
-            <ParticipantsBox
-                avatarUrls={avatarUrls}
-                totalParticipants={participants}
-                joined={joined}
-                onJoinPress={handleJoin}
-            />
+          <ParticipantsBox
+            avatarUrls={[]}
+            totalParticipants={participants}
+            joined={joined}
+            onJoinPress={handleJoin}
+          />
         </View>
       </View>
 
       {/* Nội dung chính */}
       <View style={styles.content}>
-        <Text style={styles.title}>Tìm kiếm tài năng Bách Khoa HCMUT</Text>
+        <Text style={styles.title}>{event.title}</Text>
 
         <View style={styles.infoRow}>
             <View style={styles.iconWrapper}>
                 <Ionicons name="calendar-outline" style={styles.icon} />
             </View>
             <View>
-                <Text style={styles.infoTitle}>15/03/2025</Text>
-                <Text style={styles.infoSub}>Thứ 7, 4:00PM - 9:00PM</Text>
+                <Text style={styles.infoTitle}>{startDate.date}</Text>
+                <Text style={styles.infoSub}>{startDate.time} - {endDate.time}</Text>
             </View>
         </View>
 
@@ -71,8 +193,8 @@ export default function EventDetailScreen() {
                 <Ionicons name="location-outline" style={styles.icon} />
             </View>
             <View>
-                <Text style={styles.infoTitle}>Bach Khoa Got Talent</Text>
-                <Text style={styles.infoSub}>268 D. Lý Thường Kiệt, P.14, Q.10, TP.HCM</Text>
+                <Text style={styles.infoTitle}>Địa điểm</Text>
+                <Text style={styles.infoSub}>{event.position}</Text>
             </View>
         </View>
 
@@ -92,15 +214,17 @@ export default function EventDetailScreen() {
         </View>
 
         <Text style={styles.sectionTitle}>Thông tin sự kiện</Text>
-        <Text style={styles.description}>
-            Tìm kiếm tài năng Bách Khoa là một hoạt động thường niên nhằm khám phá và tôn vinh những cá nhân xuất sắc trong cộng đồng sinh viên. 
-            Sự kiện không chỉ là sân chơi để các bạn thể hiện kỹ năng, mà còn là cơ hội để phát triển bản thân qua các phần thi hấp dẫn và mang tính thực tiễn cao. 
-            {"\n\n"}
-            Với các lĩnh vực như ca hát, nhảy múa, diễn thuyết, lập trình, thiết kế, nghiên cứu khoa học, và khởi nghiệp, chương trình tạo điều kiện cho các tài năng được thể hiện trước hội đồng chuyên môn và khán giả rộng rãi.
-            {"\n\n"}
-            Ngoài việc tranh tài, các thí sinh còn được hỗ trợ huấn luyện, mentoring bởi các chuyên gia uy tín và có cơ hội kết nối, hợp tác với các doanh nghiệp, tổ chức lớn. 
-            Đây chính là nơi khởi nguồn cho những ý tưởng sáng tạo, những bước tiến mới và cũng là nơi tạo nên sự lan toả mạnh mẽ trong cộng đồng sinh viên yêu thích sự thử thách và đổi mới.
-        </Text>
+        <Text style={styles.description}>{event.description}</Text>
+
+        {event.hashtags.length > 0 && (
+          <View style={styles.hashtagContainer}>
+            {event.hashtags.map((tag) => (
+              <View key={tag.id} style={styles.hashtag}>
+                <Text style={styles.hashtagText}>{tag.name}</Text>
+              </View>
+            ))}
+          </View>
+        )}
 
       </View>
     </ScrollView>
@@ -113,8 +237,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   bannerImage: {
-    width: '100%',
-    height: 240
+    height: 240,
   },
   headerOverlay: {
     position: 'absolute',
@@ -214,5 +337,76 @@ const styles = StyleSheet.create({
   description: {
     color: '#4B5563',
     lineHeight: 20,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  errorText: {
+    color: '#FF3B30',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  retryButton: {
+    backgroundColor: '#4B49C8',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
+  retryText: {
+    color: '#fff',
+    fontWeight: '600',
+  },
+  hashtagContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginTop: 16,
+    gap: 8,
+  },
+  hashtag: {
+    backgroundColor: '#EEF2FF',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+  },
+  hashtagText: {
+    color: '#6366F1',
+    fontWeight: '500',
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  backButton: {
+    backgroundColor: '#6B7280',
+  },
+  paginationContainer: {
+    position: 'absolute',
+    bottom: 20,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 8,
+  },
+  paginationDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+  },
+  paginationDotActive: {
+    backgroundColor: '#fff',
+    width: 12,
+    height: 12,
+    borderRadius: 6,
   },
 });

@@ -9,7 +9,6 @@ Copyright belonged to Mobile Team Senpai
 EventEase-MobileTeamSenpai/
 │── assets/              # Hình ảnh, biểu tượng, âm thanh, fonts
 │── src/                 # Code chính của ứng dụng
-│   ├── api/             # Các hàm gọi API (fetch, axios, firebase, ...)
 │   ├── components/      # Các component dùng chung (Button, Card, ...)
 │   ├── constants/       # Các hằng số (màu sắc, fonts, spacing, ...)
 │   ├── contexts/        # Context API (nếu không dùng Redux)

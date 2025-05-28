@@ -41,3 +41,7 @@ nativewind-env.d.ts
 firebaseConfig.ts
 
 .env.local
+
+.idea
+
+.vscode

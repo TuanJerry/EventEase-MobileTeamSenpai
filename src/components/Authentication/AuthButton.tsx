@@ -76,6 +76,7 @@ const styles = StyleSheet.create({
         fontFamily: "Poppins",
         fontWeight: "bold",
         textAlign: "center",
+        marginLeft: 30,
     },
     iconWrapper: {
         backgroundColor: "#3B5BDB",

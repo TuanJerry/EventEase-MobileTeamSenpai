@@ -26,7 +26,7 @@ export default function DateTimePickerGroup({
       setStartTime(parsed);
       setStartError('');
     } else {
-      setStartError('Sai định dạng. Dạng đúng: dd/MM/yyyy HH:mm:ss');
+      setStartError('Sai định dạng. Dạng đúng: dd/MM/yyyy HH:mm');
     }
   };
 
@@ -36,7 +36,7 @@ export default function DateTimePickerGroup({
       setEndTime(parsed);
       setEndError('');
     } else {
-      setEndError('Sai định dạng. Dạng đúng: dd/MM/yyyy HH:mm:ss');
+      setEndError('Sai định dạng. Dạng đúng: dd/MM/yyyy HH:mm');
     }
   };
 

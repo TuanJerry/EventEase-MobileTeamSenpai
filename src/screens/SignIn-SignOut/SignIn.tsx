@@ -1,5 +1,5 @@
-import React from "react";
-import { View, Text, StyleSheet, Pressable} from "react-native";
+import React, { useState } from "react";
+import { View, Text, StyleSheet, Pressable, Alert } from "react-native";
 import FontAwesome from "react-native-vector-icons/FontAwesome"
 import RememberPassword from "../../components/Authentication/AuthRemember";
 import SocialButton from "../../components/Authentication/SocialButton";
@@ -8,8 +8,40 @@ import InputField from "../../components/Authentication/AuthInputField";
 import Logo from "../../../assets/Logo_2.svg";
 import GoogleLogo from "../../../assets/Google.svg";
 import FacebookLogo from "../../../assets/Facebook.svg";
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { authService } from "../../services/authService";
 
-export default function SignInScreen({ navigation, onLogin}) {
+type SignInScreenProps = {
+  navigation: NativeStackNavigationProp<any>;
+  onLogin?: () => void;
+};
+
+export default function SignInScreen({ navigation, onLogin }: SignInScreenProps) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSignIn = async () => {
+    if (!email || !password) {
+      Alert.alert("Lỗi", "Vui lòng nhập đầy đủ email và mật khẩu");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await authService.login(email, password);
+      console.log("Đăng nhập thành công");
+      onLogin?.();
+    } catch (error: any) {
+      Alert.alert(
+        "Đăng nhập thất bại",
+        error.response?.data?.message || "Có lỗi xảy ra, vui lòng thử lại"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.Logo}>
@@ -21,10 +53,16 @@ export default function SignInScreen({ navigation, onLogin}) {
       <InputField
         icon={() => <FontAwesome name="envelope" size={20} color="#888" />}
         placeholder="abc@gmail.com"
+        value={email}
+        onChangeText={setEmail}
+        keyboardType="email-address"
+        autoCapitalize="none"
       />
       <InputField
         icon={() => <FontAwesome name="lock" size={20} color="#888" />}
         placeholder="Nhập mật khẩu"
+        value={password}
+        onChangeText={setPassword}
         isPassword
       />
 
@@ -36,12 +74,9 @@ export default function SignInScreen({ navigation, onLogin}) {
       </View>
 
       <Button
-        title="       ĐĂNG NHẬP"
-        onPress={() => {
-          // Handle sign-in logic here
-          console.log("Đăng nhập thành công");
-          onLogin(); // Call the onLogin function to update the state
-        }}
+        title={loading ? "ĐANG XỬ LÝ..." : "ĐĂNG NHẬP"}
+        onPress={handleSignIn}
+        disabled={loading}
       />
       {/* 🔁 Đăng nhập bằng Google */}
       <Text style={styles.orText}>Hoặc</Text>
@@ -55,7 +90,7 @@ export default function SignInScreen({ navigation, onLogin}) {
       />
       {/* 🔁 Đăng nhập bằng Facebook */}
       <SocialButton 
-         title="     Đăng nhập bằng Facebook"
+         title="Đăng nhập bằng Facebook"
          icon={FacebookLogo}
          onPress={() => {
            // Handle Google sign-in logic here
