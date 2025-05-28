@@ -9,8 +9,13 @@ import {
 import HeaderBack from "../../components/HeaderBackButton";
 import Button from "../../components/Authentication/AuthButton";
 import Logo from "../../../assets/Logo_2.svg";
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-export default function VerifyCodeScreen({ navigation }) {
+type VerifyScreenProps = {
+  navigation: NativeStackNavigationProp<any>;
+};
+
+export default function VerifyCodeScreen({ navigation }: VerifyScreenProps) {
   // State quản lý 4 ô input OTP
   const [code, setCode] = useState(["", "", "", ""]);
 

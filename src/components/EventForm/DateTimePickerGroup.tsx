@@ -26,7 +26,7 @@ export default function DateTimePickerGroup({
       setStartTime(parsed);
       setStartError('');
     } else {
-      setStartError('Sai định dạng. Dạng đúng: dd/MM/yyyy HH:mm:ss');
+      setStartError('Sai định dạng. Dạng đúng: dd/MM/yyyy HH:mm');
     }
   };
 
@@ -36,7 +36,7 @@ export default function DateTimePickerGroup({
       setEndTime(parsed);
       setEndError('');
     } else {
-      setEndError('Sai định dạng. Dạng đúng: dd/MM/yyyy HH:mm:ss');
+      setEndError('Sai định dạng. Dạng đúng: dd/MM/yyyy HH:mm');
     }
   };
 
@@ -46,7 +46,7 @@ export default function DateTimePickerGroup({
         <Text style={styles.label}>Thời gian bắt đầu</Text>
         <TextInput
           style={styles.input}
-          placeholder="dd/MM/yyyy HH:mm:ss"
+          placeholder="dd/MM/yyyy HH:mm"
           value={startInput}
           onChangeText={setStartInput}
           onBlur={handleStartBlur}
@@ -58,7 +58,7 @@ export default function DateTimePickerGroup({
         <Text style={styles.label}>Thời gian kết thúc</Text>
         <TextInput
           style={styles.input}
-          placeholder="dd/MM/yyyy HH:mm:ss"
+          placeholder="dd/MM/yyyy HH:mm"
           value={endInput}
           onChangeText={setEndInput}
           onBlur={handleEndBlur}
@@ -75,16 +75,16 @@ function formatDate(date: Date): string {
   const yyyy = date.getFullYear();
   const HH = String(date.getHours()).padStart(2, '0');
   const mm = String(date.getMinutes()).padStart(2, '0');
-  const ss = String(date.getSeconds()).padStart(2, '0');
-  return `${dd}/${MM}/${yyyy} ${HH}:${mm}:${ss}`;
+  return `${dd}/${MM}/${yyyy} ${HH}:${mm}`;
 }
 
 function parseDate(text: string): Date | null {
-  const regex = /^(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2}):(\d{2})$/;
+  const regex = /^(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2})$/;
   const match = text.match(regex);
   if (!match) return null;
 
-  const [, dd, MM, yyyy, HH, mm, ss] = match.map(Number);
-  const date = new Date(yyyy, MM - 1, dd, HH, mm, ss);
+  const [, dd, MM, yyyy, HH, mm] = match.map(Number);
+  const date = new Date(yyyy, MM - 1, dd, HH, mm);
   return isNaN(date.getTime()) ? null : date;
 }
+

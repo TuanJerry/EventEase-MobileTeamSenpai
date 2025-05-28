@@ -1,52 +1,66 @@
 // screens/JoinedEventsScreen.tsx
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { ArrowLeft } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import EventGroupList from '../../components/Profile/EventDateList';
+import { eventService } from '../../services/eventService';
+import { FavoriteEventGroup, FavoriteEvent } from '../../types/event';
 
-const joinedEvents = [
+type RootStackParamList = {
+  EventDetail: { eventId: string };
+};
 
-    {
-        date: 'Ngày 16 tháng 03, 2025',
-        shortDate: 'Tháng 3\n16',
-        events: [
-          {
-            id: '1',
-            title: 'Designers Meetup 2025',
-            location: 'Trường Đại học Bách Khoa TP. Hồ Chí Minh',
-            image: 'https://sukienvietsky.com/wp-content/uploads/2024/03/le-hoi-am-nhac-lon-nhat-nhi-the-gioi-3-8214.jpg',
-          },
-          {
-            id: '2',
-            title: 'Ngày hội việc làm',
-            location: 'Trường Đại học Bách Khoa TP. Hồ Chí Minh',
-            image: 'https://sukienvietsky.com/wp-content/uploads/2024/03/le-hoi-am-nhac-lon-nhat-nhi-the-gioi-3-8214.jpg',
-          },
-        ],
-      },
-      {
-        date: 'Ngày 10 tháng 03, 2025',
-        shortDate: 'Tháng 3\n10',
-        events: [
-          {
-            id: '3',
-            title: 'Designers Meetup 2025',
-            location: 'Trường Đại học Bách Khoa TP. Hồ Chí Minh',
-            image: 'https://sukienvietsky.com/wp-content/uploads/2024/03/le-hoi-am-nhac-lon-nhat-nhi-the-gioi-3-8214.jpg',
-          },
-          {
-            id: '4',
-            title: 'Ngày hội việc làm',
-            location: 'Trường Đại học Bách Khoa TP. Hồ Chí Minh',
-            image: 'https://sukienvietsky.com/wp-content/uploads/2024/03/le-hoi-am-nhac-lon-nhat-nhi-the-gioi-3-8214.jpg',
-          },
-        ],
-      },
-];
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 export default function JoinedEventsScreen() {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp>();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [groupedEvents, setGroupedEvents] = useState<FavoriteEventGroup[]>([]);
+
+  useEffect(() => {
+    fetchParticipatedEvents();
+  }, []);
+
+  const handleEventPress = (event: FavoriteEvent) => {
+    console.log('Navigating to event:', event.eventId);
+    navigation.navigate('EventDetail', { eventId: event.eventId });
+  };
+
+  const fetchParticipatedEvents = async () => {
+    try {
+      setLoading(true);
+      const response = await eventService.getParticipatedEvents();
+      setGroupedEvents(response.data);
+      setError(null);
+    } catch (err) {
+      setError('Không thể tải danh sách sự kiện đã tham gia');
+      console.error('Error fetching participated events:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#4B49C8" />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>{error}</Text>
+        <TouchableOpacity style={styles.retryButton} onPress={fetchParticipatedEvents}>
+          <Text style={styles.retryText}>Thử lại</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -57,7 +71,26 @@ export default function JoinedEventsScreen() {
         <Text style={styles.header}>Sự kiện đã tham gia</Text>
         <View style={{ width: 24 }} />
       </View>
-      <EventGroupList data={joinedEvents} />
+      <EventGroupList 
+        data={groupedEvents.map(group => ({
+          date: new Date(group.createdAt).toLocaleDateString('vi-VN', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+          }),
+          shortDate: (() => {
+            const date = new Date(group.createdAt);
+            return `${date.getDate()}\ntháng ${date.getMonth() + 1}`;
+          })(),
+          events: group.events.map(event => ({
+            id: event.eventId,
+            title: event.title,
+            location: event.position,
+            image: event.imagesMain
+          }))
+        }))}
+        onEventPress={handleEventPress}
+      />
     </View>
   );
 }
@@ -67,6 +100,32 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     paddingHorizontal: 20,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  errorText: {
+    color: '#FF3B30',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  retryButton: {
+    backgroundColor: '#4B49C8',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
+  retryText: {
+    color: '#fff',
+    fontWeight: '600',
   },
   headerRow: {
     flexDirection: 'row',
