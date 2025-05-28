@@ -11,6 +11,13 @@ export interface EventHashtag {
   usageCount: number;
 }
 
+export interface EventCreator {
+  id: string;
+  firstName: string;
+  lastName: string;
+  avatar: string;
+}
+
 export interface Event {
   id: string;
   title: string;
@@ -21,6 +28,7 @@ export interface Event {
   position: string;
   images: EventImage[];
   hashtags: EventHashtag[];
+  createdBy: EventCreator;
 }
 
 export interface FavoriteEvent {
@@ -92,4 +100,117 @@ export interface TrackedEventsResponse {
     page: number;
     limit: number;
   };
+}
+
+export interface EventDetailResponse {
+  status: boolean;
+  code: number;
+  timestamp: string;
+  message: string;
+  data: Event;
+}
+
+export interface CheckParticipatedResponse {
+  status: boolean;
+  code: number;
+  timestamp: string;
+  message: string;
+  data: {
+    isParticipated: boolean;
+    id?: string;
+  };
+}
+
+export interface CheckFavouritedResponse {
+  status: boolean;
+  code: number;
+  timestamp: string;
+  message: string;
+  data: {
+    isFavourited: boolean;
+    id?: string;
+  };
+}
+
+export interface DeleteResponse {
+  status: boolean;
+  code: number;
+  timestamp: string;
+  message: string;
+  data: {
+    deleted: boolean;
+  };
+}
+
+export interface ParticipateEventResponse {
+  status: boolean;
+  code: number;
+  timestamp: string;
+  message: string;
+  data: {
+    id: string;
+    createdAt: string;
+    event: {
+      id: string;
+      title: string;
+      startTime: string;
+      endTime: string;
+      position: string;
+      participantNumber: number;
+      imagesMain: string;
+      createdBy: string;
+    };
+    users: {
+      id: string;
+      firstName: string;
+      lastName: string;
+      avatar: string;
+    }[];
+  };
+}
+
+export interface FavouriteEventResponse {
+  status: boolean;
+  code: number;
+  timestamp: string;
+  message: string;
+  data: {
+    id: string;
+    createdAt: string;
+    event: {
+      id: string;
+      title: string;
+      startTime: string;
+      endTime: string;
+      position: string;
+      participantNumber: number;
+      imagesMain: string;
+      createdBy: string;
+    };
+    users: {
+      id: string;
+      firstName: string;
+      lastName: string;
+      avatar: string;
+    }[];
+  };
+}
+
+export interface EventForm {
+  title: string;
+  description: string;
+  startTime: Date | null;
+  endTime: Date | null;
+  participantNumber: number;
+  position: string;
+  hashtags: string[];
+  images: string[];
+}
+
+export interface CreateEventResponse {
+  status: boolean;
+  code: number;
+  timestamp: string;
+  message: string;
+  data: Event;
 } 
