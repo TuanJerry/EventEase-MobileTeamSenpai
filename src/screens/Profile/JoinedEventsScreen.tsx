@@ -3,12 +3,19 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { ArrowLeft } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import EventGroupList from '../../components/Profile/EventDateList';
 import { eventService } from '../../services/eventService';
-import { FavoriteEventGroup } from '../../types/event';
+import { FavoriteEventGroup, FavoriteEvent } from '../../types/event';
+
+type RootStackParamList = {
+  EventDetail: { eventId: string };
+};
+
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 export default function JoinedEventsScreen() {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp>();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [groupedEvents, setGroupedEvents] = useState<FavoriteEventGroup[]>([]);
@@ -16,6 +23,11 @@ export default function JoinedEventsScreen() {
   useEffect(() => {
     fetchParticipatedEvents();
   }, []);
+
+  const handleEventPress = (event: FavoriteEvent) => {
+    console.log('Navigating to event:', event.eventId);
+    navigation.navigate('EventDetail', { eventId: event.eventId });
+  };
 
   const fetchParticipatedEvents = async () => {
     try {
@@ -71,12 +83,13 @@ export default function JoinedEventsScreen() {
             return `${date.getDate()}\ntháng ${date.getMonth() + 1}`;
           })(),
           events: group.events.map(event => ({
-            id: event.id,
+            id: event.eventId,
             title: event.title,
             location: event.position,
             image: event.imagesMain
           }))
-        }))} 
+        }))}
+        onEventPress={handleEventPress}
       />
     </View>
   );
