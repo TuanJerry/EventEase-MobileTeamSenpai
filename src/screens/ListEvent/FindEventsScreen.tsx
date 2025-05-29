@@ -1,105 +1,144 @@
-import React from 'react';
-import { FlatList, SafeAreaView, StyleSheet, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { FlatList, SafeAreaView, StyleSheet, View, ActivityIndicator, Text } from 'react-native';
 import EventCard from '../../components/Events/EventCard';
 import NearbyEventsHeader from '../../components/Events/NearbyEventsHeader';
+import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios, { AxiosError } from 'axios';
+import { SearchEvent } from '../../types/search.types';
+import { HomeStackParamList } from '../../types/searchNavigation.types';
+import { searchService } from '../../services/searchService';
 
-
-const mockEvents = [
-    {
-      id: '1',
-      image: 'https://cdn.brvn.vn/editor/2023/03/A42_329308-chup-anh-su-kien-1_1677798711.jpg',
-      date: '16-03-2025 08:00 AM',
-      title: 'Này chủ nhật đỏ, hiến máu nhân đạo',
-      location: 'Bệnh viện quận 7, phường Tân Hưng',
-    },
-    {
-      id: '2',
-      image: 'https://cdn.brvn.vn/topics/1280px/2023/329308_329308-chup-anh-su-kien-cover_1677799072.jpg',
-      date: '17-03-2025 07:00 AM',
-      title: 'Cùng nhau cuối tuần hoà cùng âm nhạc',
-      location: 'The Coffee House, Nguyễn Văn Cừ',
-    },
-    {
-      id: '3',
-      image: 'https://dkentertainment.vn/wp-content/uploads/2023/01/Le-Hoi-Am-Nhac-Coach.jpg',
-      date: '17-03-2025 09:00 AM',
-      title: 'Phương pháp làm đẹp cho phụ nữ',
-      location: 'Nhà văn hoá, phường Tân Định',
-    },
-    {
-      id: '4',
-      image: 'https://sukienvietsky.com/wp-content/uploads/2024/03/le-hoi-am-nhac-lon-nhat-nhi-the-gioi-3-8214.jpg',
-      date: '18-03-2025 10:00 PM',
-      title: 'Hội thảo giúp bé bước chân trưởng thành',
-      location: 'Trung tâm văn hoá huyện Bình Chánh',
-    },
-    {
-      id: '5',
-      image: 'https://cdn.ahit.vn/maxoaudio/wp-content/uploads/2022/09/15121645/Coachella-su-kien-am-nhac-edm-1024x683.jpg',
-      date: '21-06-2025 10:00 PM',
-      title: 'Cuộc thi chạy marathon',
-      location: 'Nhà thi đấu quận 7',
-    },
-    {
-      id: '6',
-      image: 'https://statics.vinpearl.com/le-hoi-edm-viet-nam-8_1668244530.jpg',
-      date: '22-06-2025 10:15 AM',
-      title: 'Ngày hội Mùa Xuân xanh',
-      location: 'Công viên Gia Định',
-    },
-    {
-      id: '7',
-      image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT63d4lKL65FqZp7OlFzwKVvrkjm2ocCZpbh4nnDjU5x1zPcrclZbcG69dZHmmYtyO6_tY&usqp=CAU',
-      date: '23-06-2025 02:00 PM',
-      title: 'Hội chợ hướng nghiệp cho sinh viên',
-      location: 'Trường Đại học Bách Khoa TPHCM',
-    },
-    {
-      id: '8',
-      image: 'https://lh7-rt.googleusercontent.com/docsz/AD_4nXc4zcNNXaSiozFDTf-A_HY-YBWkCeK7_x6-nueO0AmWZntuk0XfzhL2vQhR4nZJdjAZmRPTIWE15208TafOtF6y8-14ev0bBGcRnKZ1sU-dOf7_h0S8WLlVymHiWBvca3J903BTFw?key=T6jFU9a8HoKu-odAJPzHuBZo',
-      date: '25-06-2025 08:00 AM',
-      title: 'Workshop kỹ năng mềm',
-      location: 'Không gian trẻ, Lê Thánh Tôn',
-    },
-    {
-      id: '9',
-      image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSgc0Lxk8KJTNSuVYubO8XMuYDeX6jUYpLhyxIdViigXySMa_W8h2GZlrZYRFSOiRPjvcQ&usqp=CAU',
-      date: '27-06-2025 07:30 PM',
-      title: 'Đêm nhạc cổ điển dưới trăng',
-      location: 'Phòng trà Acoustic, Q.3',
-    },
-    {
-      id: '10',
-      image: 'https://image.nhandan.vn/w800/Uploaded/2025/igpcvcvjntc8510/2022_07_14/photo-7-1656493964692812714551-8127.jpg.webp',
-      date: '30-06-2025 09:00 AM',
-      title: 'Chương trình tình nguyện xanh',
-      location: 'Xã Tân Thới Nhì, Hóc Môn',
-    },
-  ];
-  
+type FindEventsScreenRouteProp = RouteProp<HomeStackParamList, 'FindEvents'>;
+type FindEventsScreenNavigationProp = NativeStackNavigationProp<HomeStackParamList, 'FindEvents'>;
 
 export default function FindEventsScreen() {
+  const route = useRoute<FindEventsScreenRouteProp>();
+  const navigation = useNavigation<FindEventsScreenNavigationProp>();
+  const [events, setEvents] = useState<SearchEvent[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  const searchEvents = async (page: number = 1) => {
+    try {
+      if (page === 1) {
+        setLoading(true);
+      } else {
+        setLoadingMore(true);
+      }
+
+      const searchQuery = route.params.searchQuery;
+      if (!searchQuery) return;
+
+      const token = await AsyncStorage.getItem('access_token');
+      if (!token) {
+        setError('Vui lòng đăng nhập để tìm kiếm sự kiện');
+        return;
+      }
+
+      const response = await searchService.searchEvents(searchQuery, page);
+      if (response.status) {
+        if (page === 1) {
+          setEvents(response.data.items);
+        } else {
+          setEvents(prev => [...prev, ...response.data.items]);
+        }
+        setHasMore(response.data.meta.currentPage < response.data.meta.totalPages);
+      } else {
+        setError('Không tìm thấy sự kiện');
+      }
+    } catch (err) {
+      if (axios.isAxiosError(err) && err.response?.status === 401) {
+        setError('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại');
+      } else {
+        setError('Có lỗi xảy ra khi tìm kiếm sự kiện');
+      }
+      console.error('Search error:', err);
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+    }
+  };
+
+  useEffect(() => {
+    setCurrentPage(1);
+    searchEvents(1);
+  }, [route.params.searchQuery]);
+
+  const loadMore = () => {
+    if (!loadingMore && hasMore) {
+      const nextPage = currentPage + 1;
+      setCurrentPage(nextPage);
+      searchEvents(nextPage);
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const vietnamTime = new Date(date.getTime() - 7 * 60 * 60 * 1000);
+    return vietnamTime.toLocaleString('vi-VN', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
+
+  const handleEventPress = (eventId: string) => {
+    navigation.navigate('EventDetail', { eventId });
+  };
+
   return (
     <SafeAreaView style={styles.container}>
-        <NearbyEventsHeader
-            title="Sự kiện gần bạn"
-            onBackPress={() => console.log('Back')}
-            onFilterPress={() => console.log('Bộ lọc')}
-        />
+      <NearbyEventsHeader
+        title="Kết quả tìm kiếm"
+        onBackPress={() => navigation.goBack()}
+        onFilterPress={() => console.log('Bộ lọc')}
+      />
 
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#4a43ec" />
+        </View>
+      ) : error ? (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>{error}</Text>
+        </View>
+      ) : (
         <FlatList
-            data={mockEvents}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
+          data={events}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
             <EventCard
-                image={item.image}
-                date={item.date}
-                title={item.title}
-                location={item.location}
+              image={item.images[0]?.link}
+              date={formatDate(item.startTime)}
+              title={item.title}
+              location={item.position}
+              onPress={() => handleEventPress(item.id)}
             />
-            )}
-            contentContainerStyle={{ padding: 16 }}
+          )}
+          contentContainerStyle={{ padding: 16 }}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>Không tìm thấy sự kiện nào</Text>
+            </View>
+          }
+          onEndReached={loadMore}
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={
+            loadingMore ? (
+              <View style={styles.loadingMoreContainer}>
+                <ActivityIndicator size="small" color="#4a43ec" />
+              </View>
+            ) : null
+          }
         />
+      )}
     </SafeAreaView>
   );
 }
@@ -108,5 +147,36 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F8F9FD',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  errorText: {
+    color: '#ff3b30',
+    fontSize: 16,
+    textAlign: 'center',
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  emptyText: {
+    color: '#666',
+    fontSize: 16,
+    textAlign: 'center',
+  },
+  loadingMoreContainer: {
+    paddingVertical: 20,
+    alignItems: 'center',
   },
 });

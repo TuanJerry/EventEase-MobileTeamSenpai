@@ -1,16 +1,29 @@
 import { View, StyleSheet, Text, TouchableOpacity, TextInput } from 'react-native';
-import React from 'react';
+import React, { useState } from 'react';
 import Logo from '../../../assets/logo.svg';
 import Magnifier from '../../../assets/magnifier.svg';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import TagList from './TagList';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { HomeStackParamList } from '../../types/searchNavigation.types';
+
+type SearchBarNavigationProp = NavigationProp<HomeStackParamList>;
 
 const SearchBar = () => {
+    const navigation = useNavigation<SearchBarNavigationProp>();
+    const [searchText, setSearchText] = useState('');
     const hasNotification = true; // Thay đổi giá trị này để kiểm tra
+
     const onPress = () => {
         console.log('Notification button pressed');
     }
+
+    const handleSearch = () => {
+        if (searchText.trim()) {
+            navigation.navigate('FindEvents', { searchQuery: searchText.trim() });
+        }
+    };
 
     const SportsIcon = () => <Icon name="basketball-ball"color="#fff" size={18} />;
     const MusicIcon = () => <Icon name="music"color="#fff" size={18} />;
@@ -46,7 +59,7 @@ const SearchBar = () => {
                 </TouchableOpacity>
             </View>
             <View style={styles.searchContainer}>
-                <TouchableOpacity style={styles.magnifierIcon}>
+                <TouchableOpacity style={styles.magnifierIcon} onPress={handleSearch}>
                     <Magnifier width={24} height={24} />
                 </TouchableOpacity>
                 <Text style={styles.verticalLine}> | </Text>
@@ -54,6 +67,10 @@ const SearchBar = () => {
                     style={styles.input}
                     placeholder="Tìm sự kiện..."
                     placeholderTextColor="#807bf2"
+                    value={searchText}
+                    onChangeText={setSearchText}
+                    onSubmitEditing={handleSearch}
+                    returnKeyType="search"
                 />
                 <TouchableOpacity style={styles.filterButton}>
                     <View style={styles.filterIconWrapper}>
