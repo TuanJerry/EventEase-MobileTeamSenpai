@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { ArrowLeft } from 'lucide-react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import EventGroupList from '../../components/Profile/EventDateList';
 import { eventService } from '../../services/eventService';
 import { FavoriteEventGroup, FavoriteEvent } from '../../types/event';
@@ -23,6 +23,13 @@ export default function FavoriteEventsScreen() {
   useEffect(() => {
     fetchFavoriteEvents();
   }, []);
+
+  // Refresh danh sách mỗi khi màn hình được focus
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchFavoriteEvents();
+    }, [])
+  );
 
   const fetchFavoriteEvents = async () => {
     try {

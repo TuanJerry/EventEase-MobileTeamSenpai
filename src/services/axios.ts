@@ -94,6 +94,11 @@ axiosInstance.interceptors.response.use(
         // Nếu refresh thất bại, xóa token và chuyển về login
         processQueue(refreshError, null);
         await AsyncStorage.multiRemove(['access_token', 'refresh_token']);
+        
+        // Thêm event để thông báo cho app biết cần logout
+        const event = new Event('auth:logout');
+        window.dispatchEvent(event);
+        
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
