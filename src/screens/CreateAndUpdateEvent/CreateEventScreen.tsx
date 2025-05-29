@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ScrollView, TextInput, View, Text } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { EventFormData } from '../../types/event';
+import { EventForm } from '../../types/event';
 import EventImagePicker from '../../components/EventForm/EventImagePicker';
 import TagSelector from '../../components/EventForm/TagSelector';
 import DateTimePickerGroup from '../../components/EventForm/DateTimePickerGroup';
@@ -14,7 +14,7 @@ type CreateEventScreenProps = {
 };
 
 export default function CreateEventScreen({ navigation }: CreateEventScreenProps) {
-  const [form, setForm] = useState<EventFormData>({
+  const [form, setForm] = useState<EventForm>({
     title: '',
     description: '',
     images: [],

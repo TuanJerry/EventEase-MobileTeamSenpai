@@ -4,14 +4,14 @@ import EventCard from '../../components/Events/EventCard';
 import NearbyEventsHeader from '../../components/Events/NearbyEventsHeader';
 import { eventService } from '../../services/eventService';
 import { FavoriteEvent, FavoriteEventGroup } from '../../types/event';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 type RootStackParamList = {
   EventDetail: { eventId: string };
 };
 
-type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
+type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'EventDetail'>;
 
 export default function TrackedEventsScreen() {
     const navigation = useNavigation<NavigationProp>();
@@ -41,6 +41,14 @@ export default function TrackedEventsScreen() {
             setLoading(false);
         }
     };
+
+    // Refresh danh sách mỗi khi màn hình được focus
+    useFocusEffect(
+        React.useCallback(() => {
+            setPage(1); // Reset về trang 1
+            fetchEvents(1);
+        }, [])
+    );
 
     useEffect(() => {
         fetchEvents(1);
@@ -83,13 +91,13 @@ export default function TrackedEventsScreen() {
                 data={events}
                 keyExtractor={(item) => item.eventId}
                 renderItem={({ item }) => (
-                    <EventCard
+                <EventCard
                         image={item.imagesMain}
                         date={new Date(item.startTime).toLocaleString('vi-VN')}
-                        title={item.title}
+                    title={item.title}
                         location={item.position}
                         onPress={() => handleEventPress(item)}
-                    />
+                />
                 )}
                 contentContainerStyle={{ padding: 16 }}
                 onEndReached={loadMore}
@@ -101,10 +109,10 @@ export default function TrackedEventsScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#F8F9FD',
-    },
+  container: {
+    flex: 1,
+    backgroundColor: '#F8F9FD',
+  },
     footerLoader: {
         paddingVertical: 20,
         alignItems: 'center',
