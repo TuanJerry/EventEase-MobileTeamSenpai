@@ -10,6 +10,8 @@ import "../global.css"; // Import global styles
 // import BottomTabNavigator from './navigation/BottomTabNavigator';
 import RootNavigator from './navigation/RootNavigator';
 import * as Sentry from '@sentry/react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 
 Sentry.init({
   dsn: 'https://0f978f5a3ab12f9d05c405ae3bf2bf5f@o4509285998592000.ingest.us.sentry.io/4509286015500288',
@@ -31,18 +33,21 @@ Sentry.init({
 
 export default Sentry.wrap(function App() {
   return (
-    <SafeAreaProvider>
-      <NavigationContainer>
-        <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-          <StatusBar style="dark" translucent backgroundColor="transparent" />
-          {/* <BottomTabNavigator /> */}
-          <RootNavigator/>
-        </SafeAreaView>
-      </NavigationContainer>
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <BottomSheetModalProvider>
+        <SafeAreaProvider>
+            <NavigationContainer>
+              <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+                <StatusBar style="dark" translucent backgroundColor="transparent" />
+                <RootNavigator />
+              </SafeAreaView>
+            </NavigationContainer>
+        </SafeAreaProvider>
+      </BottomSheetModalProvider>
+    </GestureHandlerRootView>
+
   );
 });
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,

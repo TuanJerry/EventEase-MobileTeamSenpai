@@ -39,6 +39,12 @@
           "project": "event-ease",
           "organization": "mobile-team-senpai"
         }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow EventEase to use your location."
+        }
       ]
     ]
   }
