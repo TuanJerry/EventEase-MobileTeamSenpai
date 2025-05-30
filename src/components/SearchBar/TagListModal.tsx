@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { forwardRef, useImperativeHandle, useState } from 'react';
 import { Pressable, Text, View, StyleSheet } from 'react-native';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import Icon from 'react-native-vector-icons/FontAwesome5';
@@ -8,7 +8,14 @@ type Tag = {
   icon: React.FC<{ color: string }>;
 };
 
-// Icon components nhận màu làm props
+type TagSelectorProps = {
+  onChange: (selected: string[]) => void;
+};
+
+export type TagSelectorRef = {
+  clear: () => void;
+};
+
 const SportsIcon = ({ color }: { color: string }) => <Icon name="basketball-ball" color={color} size={30} />;
 const MusicIcon = ({ color }: { color: string }) => <Icon name="music" color={color} size={30} />;
 const FoodIcon = ({ color }: { color: string }) => <Icon name="utensils" color={color} size={30} />;
@@ -23,11 +30,25 @@ const tags: Tag[] = [
   { name: 'Du lịch', icon: TravelIcon },
 ];
 
-const TagSelector = () => {
-  const [selectedIndex, setSelectedIndex] = useState<number>(-1);
+const TagSelector = forwardRef<TagSelectorRef, TagSelectorProps>(({ onChange }, ref) => {
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
-  const onTagSelected = (index: number) => {
-    setSelectedIndex(index);
+  useImperativeHandle(ref, () => ({
+    clear: () => {
+      setSelectedCategories([]);
+      onChange([]);
+    },
+  }));
+
+  const toggleCategory = (category: string) => {
+    setSelectedCategories(prev => {
+      const exists = prev.includes(category);
+      const updated = exists
+        ? prev.filter(c => c !== category)
+        : [...prev, category];
+      onChange(updated); // Gửi lên cha
+      return updated;
+    });
   };
 
   return (
@@ -37,14 +58,14 @@ const TagSelector = () => {
       contentContainerStyle={styles.scrollViewContent}
     >
       {tags.map((item, index) => {
-        const selected = index === selectedIndex;
+        const selected = selectedCategories.includes(item.name);
         const iconColor = selected ? '#fff' : '#b6b6b6';
         const borderColor = selected ? 'transparent' : '#b6b6b6';
 
         return (
           <View key={index.toString()} style={styles.itemContainer}>
             <Pressable
-              onPress={() => onTagSelected(index)}
+              onPress={() => toggleCategory(item.name)}
               style={[
                 styles.tagButton,
                 {
@@ -64,12 +85,12 @@ const TagSelector = () => {
       })}
     </BottomSheetScrollView>
   );
-};
+});
 
 const styles = StyleSheet.create({
   scrollViewContent: {
     paddingHorizontal: 16,
-    paddingVertical: 32
+    paddingVertical: 32,
   },
   itemContainer: {
     alignItems: 'center',
@@ -89,7 +110,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 18,
     marginTop: 16,
-  }
+  },
 });
 
 export default TagSelector;

@@ -9,6 +9,7 @@ import { useLocation } from '../../hooks/useLocation';
 import { extractCleanAddress } from '../../utils/extractCleanAddress';
 import FilterModal, { FilterModalRef } from './FilterModal';
 
+
 const SearchBar = () => {
     const [address, setAddress] = useState('');
     const modalRef = useRef<FilterModalRef>(null);
