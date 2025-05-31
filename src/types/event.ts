@@ -108,4 +108,4 @@ export interface EventDetailResponse {
   timestamp: string;
   message: string;
   data: Event;
-}
+} 

@@ -1,18 +1,12 @@
 // screens/FavoriteEventsScreen.tsx
-import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  ActivityIndicator,
-} from "react-native";
-import { ArrowLeft } from "lucide-react-native";
-import { useNavigation, useFocusEffect } from "@react-navigation/native";
-import EventGroupList from "../../components/Profile/EventDateList";
-import { eventService } from "../../services/eventService";
-import { FavoriteEventGroup, FavoriteEvent } from "../../types/event";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import React, { useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import { ArrowLeft } from 'lucide-react-native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import EventGroupList from '../../components/Profile/EventDateList';
+import { eventService } from '../../services/eventService';
+import { FavoriteEventGroup, FavoriteEvent } from '../../types/event';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 type RootStackParamList = {
   EventDetail: { eventId: string };

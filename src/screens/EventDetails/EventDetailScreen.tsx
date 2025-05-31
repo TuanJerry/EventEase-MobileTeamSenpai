@@ -1,22 +1,11 @@
-import React, { useState, useEffect, useRef } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Image,
-  TouchableOpacity,
-  ScrollView,
-  ActivityIndicator,
-  FlatList,
-  Dimensions,
-  Alert,
-} from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import ParticipantsBox from "../../components/EventDetails/ParticipantsBox";
-import { eventService } from "../../services/eventService";
-import { Event, EventDetailResponse } from "../../types/event";
-import { useRoute, useNavigation } from "@react-navigation/native";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, ActivityIndicator, FlatList, Dimensions, Alert } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import ParticipantsBox from '../../components/EventDetails/ParticipantsBox';
+import { eventService } from '../../services/eventService';
+import { Event, EventDetailResponse } from '../../types/event';
+import { useRoute, useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 type RootStackParamList = {
   EventDetail: { eventId: string };
@@ -41,7 +30,7 @@ export default function EventDetailScreen() {
   const [isTracked, setIsTracked] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const flatListRef = useRef<FlatList>(null);
-  const screenWidth = Dimensions.get("window").width;
+  const screenWidth = Dimensions.get('window').width;
   const [isSelf, setIsSelf] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
   const [relationshipId, setRelationshipId] = useState<string | null>(null);
@@ -105,6 +94,7 @@ export default function EventDetailScreen() {
 
   const checkParticipateStatus = async () => {
     try {
+
       console.log("=== Checking Participate Status ===");
       console.log("Event ID:", eventId);
 
@@ -155,10 +145,7 @@ export default function EventDetailScreen() {
         const followResponse = await eventService.checkFollow(userId);
         console.log("Follow Response:", followResponse);
         setIsFollowing(followResponse.data.isFollow);
-        if (
-          followResponse.data.isFollow &&
-          followResponse.data.relationshipId
-        ) {
+        if (followResponse.data.isFollow && followResponse.data.relationshipId) {
           setRelationshipId(followResponse.data.relationshipId);
         }
       }
@@ -379,9 +366,7 @@ export default function EventDetailScreen() {
     // Format thời gian
     const hours = vietnamTime.getHours();
     const minutes = vietnamTime.getMinutes();
-    const time = `${hours.toString().padStart(2, "0")}:${minutes
-      .toString()
-      .padStart(2, "0")}`;
+    const time = `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
 
     return {
       date: formattedDate,
@@ -477,9 +462,7 @@ export default function EventDetailScreen() {
           </View>
           <View>
             <Text style={styles.infoTitle}>Số lượng tham gia</Text>
-            <Text style={styles.infoSub}>
-              Tối đa {event.participantNumber} người
-            </Text>
+            <Text style={styles.infoSub}>Tối đa {event.participantNumber} người</Text>
           </View>
         </View>
 
@@ -650,6 +633,9 @@ const styles = StyleSheet.create({
   },
   followingButtonText: {
     color: "#fff",
+  },
+  followingButtonText: {
+    color: '#fff',
   },
   sectionTitle: {
     fontWeight: "600",

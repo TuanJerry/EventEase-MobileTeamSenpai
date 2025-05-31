@@ -1,27 +1,17 @@
-import React, { useEffect, useState } from "react";
-import {
-  FlatList,
-  SafeAreaView,
-  StyleSheet,
-  View,
-  ActivityIndicator,
-  TouchableOpacity,
-} from "react-native";
-import EventCard from "../../components/Events/EventCard";
-import NearbyEventsHeader from "../../components/Events/NearbyEventsHeader";
-import { eventService } from "../../services/eventService";
-import { FavoriteEvent, FavoriteEventGroup } from "../../types/event";
-import { useNavigation, useFocusEffect } from "@react-navigation/native";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import React, { useEffect, useState } from 'react';
+import { FlatList, SafeAreaView, StyleSheet, View, ActivityIndicator, TouchableOpacity } from 'react-native';
+import EventCard from '../../components/Events/EventCard';
+import NearbyEventsHeader from '../../components/Events/NearbyEventsHeader';
+import { eventService } from '../../services/eventService';
+import { FavoriteEvent, FavoriteEventGroup } from '../../types/event';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 type RootStackParamList = {
   EventDetail: { eventId: string };
 };
 
-type NavigationProp = NativeStackNavigationProp<
-  RootStackParamList,
-  "EventDetail"
->;
+type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'EventDetail'>;
 
 export default function TrackedEventsScreen() {
   const navigation = useNavigation<NavigationProp>();
