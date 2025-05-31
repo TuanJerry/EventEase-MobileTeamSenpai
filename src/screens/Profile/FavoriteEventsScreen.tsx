@@ -1,18 +1,27 @@
 // screens/FavoriteEventsScreen.tsx
-import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
-import { ArrowLeft } from 'lucide-react-native';
-import { useNavigation } from '@react-navigation/native';
-import EventGroupList from '../../components/Profile/EventDateList';
-import { eventService } from '../../services/eventService';
-import { FavoriteEventGroup, FavoriteEvent } from '../../types/event';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator,
+} from "react-native";
+import { ArrowLeft } from "lucide-react-native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import EventGroupList from "../../components/Profile/EventDateList";
+import { eventService } from "../../services/eventService";
+import { FavoriteEventGroup, FavoriteEvent } from "../../types/event";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 type RootStackParamList = {
   EventDetail: { eventId: string };
 };
 
-type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'EventDetail'>;
+type NavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  "EventDetail"
+>;
 
 export default function FavoriteEventsScreen() {
   const navigation = useNavigation<NavigationProp>();
@@ -24,6 +33,13 @@ export default function FavoriteEventsScreen() {
     fetchFavoriteEvents();
   }, []);
 
+  // Refresh danh sách mỗi khi màn hình được focus
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchFavoriteEvents();
+    }, [])
+  );
+
   const fetchFavoriteEvents = async () => {
     try {
       setLoading(true);
@@ -31,15 +47,15 @@ export default function FavoriteEventsScreen() {
       setGroupedEvents(response.data);
       setError(null);
     } catch (err) {
-      setError('Không thể tải danh sách sự kiện yêu thích');
-      console.error('Error fetching favorite events:', err);
+      setError("Không thể tải danh sách sự kiện yêu thích");
+      console.error("Error fetching favorite events:", err);
     } finally {
       setLoading(false);
     }
   };
 
   const handleEventPress = (event: FavoriteEvent) => {
-    navigation.navigate('EventDetail', { eventId: event.eventId });
+    navigation.navigate("EventDetail", { eventId: event.eventId });
   };
 
   if (loading) {
@@ -54,7 +70,10 @@ export default function FavoriteEventsScreen() {
     return (
       <View style={styles.errorContainer}>
         <Text style={styles.errorText}>{error}</Text>
-        <TouchableOpacity style={styles.retryButton} onPress={fetchFavoriteEvents}>
+        <TouchableOpacity
+          style={styles.retryButton}
+          onPress={fetchFavoriteEvents}
+        >
           <Text style={styles.retryText}>Thử lại</Text>
         </TouchableOpacity>
       </View>
@@ -70,24 +89,24 @@ export default function FavoriteEventsScreen() {
         <Text style={styles.header}>Sự kiện yêu thích</Text>
         <View style={{ width: 24 }} />
       </View>
-      <EventGroupList 
-        data={groupedEvents.map(group => ({
-          date: new Date(group.createdAt).toLocaleDateString('vi-VN', {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric'
+      <EventGroupList
+        data={groupedEvents.map((group) => ({
+          date: new Date(group.createdAt).toLocaleDateString("vi-VN", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
           }),
           shortDate: (() => {
             const date = new Date(group.createdAt);
             return `${date.getDate()}\ntháng ${date.getMonth() + 1}`;
           })(),
-          events: group.events.map(event => ({
+          events: group.events.map((event) => ({
             id: event.eventId,
             title: event.title,
             location: event.position,
-            image: event.imagesMain
-          }))
-        }))} 
+            image: event.imagesMain,
+          })),
+        }))}
         onEventPress={handleEventPress}
       />
     </View>
@@ -96,46 +115,45 @@ export default function FavoriteEventsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     paddingHorizontal: 20,
   },
   loadingContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   errorContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     padding: 20,
   },
   errorText: {
-    color: '#FF3B30',
+    color: "#FF3B30",
     marginBottom: 10,
-    textAlign: 'center',
+    textAlign: "center",
   },
   retryButton: {
-    backgroundColor: '#4B49C8',
+    backgroundColor: "#4B49C8",
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 8,
   },
   retryText: {
-    color: '#fff',
-    fontWeight: '600',
+    color: "#fff",
+    fontWeight: "600",
   },
   headerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     marginBottom: 24,
   },
   header: {
     fontSize: 20,
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontWeight: "bold",
+    textAlign: "center",
     flex: 1,
   },
 });
-
