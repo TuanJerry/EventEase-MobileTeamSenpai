@@ -41,7 +41,11 @@ export const styles = StyleSheet.create({
         fontWeight: '600',
         fontSize: 14,
       },
-      
+      loadingContainer: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+      },
       label: {
         fontWeight: '500',
         marginBottom: 6,
@@ -215,4 +219,11 @@ export const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor: '#eee',
       },
+      
+      customImagePicker: { 
+        flexDirection: "row", 
+        alignItems: "center", 
+        marginBottom: 10 
+      },
+      
   });

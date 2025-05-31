@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput } from 'react-native';
-import { styles } from './EventForm.style';
+import React, { useState } from "react";
+import { View, Text, TextInput } from "react-native";
+import { styles } from "./EventForm.style";
 
 type Props = {
   startTime: Date | undefined;
@@ -15,18 +15,20 @@ export default function DateTimePickerGroup({
   setStartTime,
   setEndTime,
 }: Props) {
-  const [startInput, setStartInput] = useState(startTime ? formatDate(startTime) : '');
-  const [endInput, setEndInput] = useState(endTime ? formatDate(endTime) : '');
-  const [startError, setStartError] = useState('');
-  const [endError, setEndError] = useState('');
+  const [startInput, setStartInput] = useState(
+    startTime ? formatDate(startTime) : ""
+  );
+  const [endInput, setEndInput] = useState(endTime ? formatDate(endTime) : "");
+  const [startError, setStartError] = useState("");
+  const [endError, setEndError] = useState("");
 
   const handleStartBlur = () => {
     const parsed = parseDate(startInput);
     if (parsed) {
       setStartTime(parsed);
-      setStartError('');
+      setStartError("");
     } else {
-      setStartError('Sai định dạng. Dạng đúng: dd/MM/yyyy HH:mm');
+      setStartError("Sai định dạng. Dạng đúng: dd/MM/yyyy HH:mm");
     }
   };
 
@@ -34,9 +36,9 @@ export default function DateTimePickerGroup({
     const parsed = parseDate(endInput);
     if (parsed) {
       setEndTime(parsed);
-      setEndError('');
+      setEndError("");
     } else {
-      setEndError('Sai định dạng. Dạng đúng: dd/MM/yyyy HH:mm');
+      setEndError("Sai định dạng. Dạng đúng: dd/MM/yyyy HH:mm");
     }
   };
 
@@ -51,7 +53,9 @@ export default function DateTimePickerGroup({
           onChangeText={setStartInput}
           onBlur={handleStartBlur}
         />
-        {startError ? <Text style={{ color: 'red', fontSize: 12 }}>{startError}</Text> : null}
+        {startError ? (
+          <Text style={{ color: "red", fontSize: 12 }}>{startError}</Text>
+        ) : null}
       </View>
 
       <View style={styles.half}>
@@ -63,19 +67,21 @@ export default function DateTimePickerGroup({
           onChangeText={setEndInput}
           onBlur={handleEndBlur}
         />
-        {endError ? <Text style={{ color: 'red', fontSize: 12 }}>{endError}</Text> : null}
+        {endError ? (
+          <Text style={{ color: "red", fontSize: 12 }}>{endError}</Text>
+        ) : null}
       </View>
     </View>
   );
 }
 
 function formatDate(date: Date): string {
-  const dd = String(date.getDate()).padStart(2, '0');
-  const MM = String(date.getMonth() + 1).padStart(2, '0');
+  const dd = String(date.getDate()).padStart(2, "0");
+  const MM = String(date.getMonth() + 1).padStart(2, "0");
   const yyyy = date.getFullYear();
-  const HH = String(date.getHours()).padStart(2, '0');
-  const mm = String(date.getMinutes()).padStart(2, '0');
-  const ss = String(date.getSeconds()).padStart(2, '0');
+  const HH = String(date.getHours()).padStart(2, "0");
+  const mm = String(date.getMinutes()).padStart(2, "0");
+  const ss = String(date.getSeconds()).padStart(2, "0");
   return `${dd}/${MM}/${yyyy} ${HH}:${mm}:${ss}`;
 }
 

@@ -383,4 +383,30 @@ export const eventService = {
       throw error;
     }
   },
+
+  createEvent: async (formData: FormData): Promise<EventDetailResponse> => {
+    try {
+      const response = await axiosInstance.post('/events', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  updateEvent: async (eventId: string, formData: FormData): Promise<EventDetailResponse> => {
+    try {
+      const response = await axiosInstance.patch(`/events/${eventId}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
 }; 

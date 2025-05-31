@@ -8,6 +8,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 type RootStackParamList = {
   EventDetail: { eventId: string };
+  UpdateEvent: { eventId: string };
 };
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'EventDetail'>;
@@ -72,6 +73,15 @@ export default function ManagePostsScreen() {
     navigation.navigate('EventDetail', { eventId });
   };
 
+  const handleEditPress = (eventId: string) => {
+    console.log("=== Event Details ===");
+    console.log("Event ID:", eventId);
+    console.log("Event URL:", `/event/${eventId}`);
+    console.log("Navigation params:", { eventId });
+    console.log("==================");
+    navigation.navigate("UpdateEvent", { eventId });
+  }
+
   const renderItem = ({ item }: { item: Event }) => (
     <TouchableOpacity 
       style={styles.card}
@@ -94,7 +104,7 @@ export default function ManagePostsScreen() {
         </View>
       </View>
       <TouchableOpacity 
-        onPress={() => console.log('Edit', item.id)}
+        onPress={() => handleEditPress(item.id)}
         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
       >
         <SquarePen size={20} color="#000" />
