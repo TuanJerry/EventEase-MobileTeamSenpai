@@ -5,21 +5,27 @@ import Magnifier from '../../../assets/magnifier.svg';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import TagList from './TagList';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { HomeStackParamList } from '../../types/searchNavigation.types';
+import { Tag } from '../../types/tag.types';
 import { useLocation } from '../../hooks/useLocation';
 import { extractCleanAddress } from '../../utils/extractCleanAddress';
 import FilterModal, { FilterModalRef } from './FilterModal';
 
+type SearchBarNavigationProp = NavigationProp<HomeStackParamList>;
 
 const SearchBar = () => {
+    const navigation = useNavigation<SearchBarNavigationProp>();
+    const [searchText, setSearchText] = useState('');
     const [address, setAddress] = useState('');
     const modalRef = useRef<FilterModalRef>(null);
+    const hasNotification = true;
 
-    
-    const hasNotification = true; // Thay đổi giá trị này để kiểm tra
     const onPress = () => {
         console.log('Notification button pressed');
     }
-    const { location,  errorMsg } = useLocation();
+
+    const { location, errorMsg } = useLocation();
 
     if (errorMsg) return <Text>Lỗi: {errorMsg}</Text>;
 
@@ -35,15 +41,25 @@ const SearchBar = () => {
         }
     }, [location]);
 
+    const handleSearch = () => {
+        if (searchText.trim()) {
+            navigation.navigate('FindEvents', { searchQuery: searchText.trim() });
+        }
+    };
+
+    const handleTagPress = (hashtag: string) => {
+        navigation.navigate('FindEvents', { searchQuery: hashtag });
+    };
+
     const SportsIcon = () => <Icon name="basketball-ball"color="#fff" size={18} />;
     const MusicIcon = () => <Icon name="music"color="#fff" size={18} />;
     const FoodIcon = () => <Icon name="utensils" color="#fff" size={18} />;
 
     const tags: Tag[] = [
-        { name: 'Thể thao', color: '#f0635a', icon: SportsIcon },
-        { name: 'Âm nhạc', color: '#f59762', icon: MusicIcon },
-        { name: 'Ẩm thực', color: '#29d697', icon: FoodIcon },
-        { name: 'Du lịch', color: '#46cdfb', icon: () => <Icon name="plane" color="#fff" size={18} /> },
+        { name: 'Thể thao', color: '#f0635a', icon: SportsIcon, hashtag: '#sports' },
+        { name: 'Âm nhạc', color: '#f59762', icon: MusicIcon, hashtag: '#music' },
+        { name: 'Ẩm thực', color: '#29d697', icon: FoodIcon, hashtag: '#food' },
+        { name: 'Du lịch', color: '#46cdfb', icon: () => <Icon name="plane" color="#fff" size={18} />, hashtag: '#travel' },
     ];
 
     return (
@@ -69,7 +85,7 @@ const SearchBar = () => {
                 </TouchableOpacity>
             </View>
             <View style={styles.searchContainer}>
-                <TouchableOpacity style={styles.magnifierIcon}>
+                <TouchableOpacity style={styles.magnifierIcon} onPress={handleSearch}>
                     <Magnifier width={24} height={24} />
                 </TouchableOpacity>
                 <Text style={styles.verticalLine}> | </Text>
@@ -77,6 +93,10 @@ const SearchBar = () => {
                     style={styles.input}
                     placeholder="Tìm sự kiện..."
                     placeholderTextColor="#807bf2"
+                    value={searchText}
+                    onChangeText={setSearchText}
+                    onSubmitEditing={handleSearch}
+                    returnKeyType="search"
                 />
                 <TouchableOpacity style={styles.filterButton} onPress={() => modalRef.current?.present()}>
                     <View style={styles.filterIconWrapper}>
@@ -86,12 +106,12 @@ const SearchBar = () => {
                 </TouchableOpacity>
             </View>
             <View style={[styles.tagListContainer]}>
-                <TagList tags={tags} />
+                <TagList tags={tags} onTagPress={handleTagPress} />
             </View>
             <FilterModal ref={modalRef} />
         </View>
-    )
-}
+    );
+};
 
 const styles = StyleSheet.create({
     searchBar: {
@@ -197,4 +217,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default SearchBar
+export default SearchBar;

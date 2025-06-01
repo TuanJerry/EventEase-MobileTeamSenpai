@@ -1,7 +1,8 @@
 import React from 'react';
-import { View, ScrollView, StyleSheet, Text } from 'react-native';
+import { View, ScrollView, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { TagListProps } from '../../types/tag.types';
 
-const TagList: React.FC<TagListProps> = ({ tags }) => {
+const TagList: React.FC<TagListProps> = ({ tags, onTagPress }) => {
     return (
         <View style={styles.container}>
             <ScrollView
@@ -10,13 +11,17 @@ const TagList: React.FC<TagListProps> = ({ tags }) => {
                 contentContainerStyle={styles.scrollContent}
             >
                 {tags.map((tag, index) => {
-                const IconComponent = tag.icon;
-                return (
-                    <View key={index} style={[styles.tag, { backgroundColor: tag.color }]}>
-                        <IconComponent width={24} height={24} color="#fff" />
-                        <Text style={styles.tagText}>{tag.name}</Text>
-                    </View>
-                );
+                    const IconComponent = tag.icon;
+                    return (
+                        <TouchableOpacity 
+                            key={index} 
+                            style={[styles.tag, { backgroundColor: tag.color }]}
+                            onPress={() => onTagPress(tag.hashtag)}
+                        >
+                            <IconComponent />
+                            <Text style={styles.tagText}>{tag.name}</Text>
+                        </TouchableOpacity>
+                    );
                 })}
             </ScrollView>
         </View>
