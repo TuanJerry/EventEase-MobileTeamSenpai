@@ -7,6 +7,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import TagList from './TagList';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { HomeStackParamList } from '../../types/searchNavigation.types';
+import { Tag } from '../../types/tag.types';
 
 type SearchBarNavigationProp = NavigationProp<HomeStackParamList>;
 
@@ -25,15 +26,19 @@ const SearchBar = () => {
         }
     };
 
+    const handleTagPress = (hashtag: string) => {
+        navigation.navigate('FindEvents', { searchQuery: hashtag });
+    };
+
     const SportsIcon = () => <Icon name="basketball-ball"color="#fff" size={18} />;
     const MusicIcon = () => <Icon name="music"color="#fff" size={18} />;
     const FoodIcon = () => <Icon name="utensils" color="#fff" size={18} />;
 
     const tags: Tag[] = [
-        { name: 'Thể thao', color: '#f0635a', icon: SportsIcon },
-        { name: 'Âm nhạc', color: '#f59762', icon: MusicIcon },
-        { name: 'Ẩm thực', color: '#29d697', icon: FoodIcon },
-        { name: 'Du lịch', color: '#46cdfb', icon: () => <Icon name="plane" color="#fff" size={18} /> },
+        { name: 'Thể thao', color: '#f0635a', icon: SportsIcon, hashtag: '#sports' },
+        { name: 'Âm nhạc', color: '#f59762', icon: MusicIcon, hashtag: '#music' },
+        { name: 'Ẩm thực', color: '#29d697', icon: FoodIcon, hashtag: '#food' },
+        { name: 'Du lịch', color: '#46cdfb', icon: () => <Icon name="plane" color="#fff" size={18} />, hashtag: '#travel' },
     ];
 
     return (
@@ -80,7 +85,7 @@ const SearchBar = () => {
                 </TouchableOpacity>
             </View>
             <View style={[styles.tagListContainer]}>
-                <TagList tags={tags} />
+                <TagList tags={tags} onTagPress={handleTagPress} />
             </View>
         </View>
     )
