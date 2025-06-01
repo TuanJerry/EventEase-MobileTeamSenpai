@@ -1,5 +1,5 @@
 import { View, StyleSheet, Text, TouchableOpacity, TextInput } from 'react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Logo from '../../../assets/logo.svg';
 import Magnifier from '../../../assets/magnifier.svg';
 import Icon from 'react-native-vector-icons/FontAwesome5';
@@ -8,17 +8,38 @@ import TagList from './TagList';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { HomeStackParamList } from '../../types/searchNavigation.types';
 import { Tag } from '../../types/tag.types';
+import { useLocation } from '../../hooks/useLocation';
+import { extractCleanAddress } from '../../utils/extractCleanAddress';
+import FilterModal, { FilterModalRef } from './FilterModal';
 
 type SearchBarNavigationProp = NavigationProp<HomeStackParamList>;
 
 const SearchBar = () => {
     const navigation = useNavigation<SearchBarNavigationProp>();
     const [searchText, setSearchText] = useState('');
-    const hasNotification = true; // Thay đổi giá trị này để kiểm tra
+    const [address, setAddress] = useState('');
+    const modalRef = useRef<FilterModalRef>(null);
+    const hasNotification = true;
 
     const onPress = () => {
         console.log('Notification button pressed');
     }
+
+    const { location, errorMsg } = useLocation();
+
+    if (errorMsg) return <Text>Lỗi: {errorMsg}</Text>;
+
+    useEffect(() => {
+        if (location) {
+            const clean = extractCleanAddress({
+                formattedAddress: location.formattedAddress || '',
+                name: location.name,
+                street: location.street,
+                country: location.country,
+            });
+            setAddress(clean);
+        }
+    }, [location]);
 
     const handleSearch = () => {
         if (searchText.trim()) {
@@ -53,7 +74,7 @@ const SearchBar = () => {
                         <Icon name="caret-down" size={16} color='#fff'/>
                     </View>
                     <Text style={styles.location}>
-                        Tân Thuận, Quận 7, Hồ Chí Minh
+                        {address || 'Đang xác định vị trí...'}
                     </Text>
                 </View>
                 <TouchableOpacity style={styles.button} onPress={onPress}>
@@ -77,7 +98,7 @@ const SearchBar = () => {
                     onSubmitEditing={handleSearch}
                     returnKeyType="search"
                 />
-                <TouchableOpacity style={styles.filterButton}>
+                <TouchableOpacity style={styles.filterButton} onPress={() => modalRef.current?.present()}>
                     <View style={styles.filterIconWrapper}>
                         <MaterialIcons name="filter-list" size={24} color="#655ff3" />
                     </View>
@@ -87,9 +108,10 @@ const SearchBar = () => {
             <View style={[styles.tagListContainer]}>
                 <TagList tags={tags} onTagPress={handleTagPress} />
             </View>
+            <FilterModal ref={modalRef} />
         </View>
-    )
-}
+    );
+};
 
 const styles = StyleSheet.create({
     searchBar: {
@@ -195,4 +217,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default SearchBar
+export default SearchBar;
