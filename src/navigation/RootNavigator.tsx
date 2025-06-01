@@ -12,7 +12,7 @@ export const AuthContext = createContext({
 });
 
 export default function RootNavigator() {
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const Stack = createStackNavigator();
   const [hasSeenOnboarding, setHasSeenOnboarding] = useState<boolean | null>(
     null
@@ -20,6 +20,7 @@ export default function RootNavigator() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    //AsyncStorage.clear();
     const checkOnboarding = async () => {
       const seen = await AsyncStorage.getItem("hasSeenOnboarding");
       setHasSeenOnboarding(seen === "true");
