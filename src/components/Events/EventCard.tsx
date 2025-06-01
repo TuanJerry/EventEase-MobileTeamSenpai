@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 type Props = {
@@ -7,11 +7,12 @@ type Props = {
   date: string;
   title: string;
   location: string;
+  onPress?: () => void;
 };
 
-export default function EventCard({ image, date, title, location }: Props) {
+export default function EventCard({ image, date, title, location, onPress }: Props) {
   return (
-    <View style={styles.card}>
+    <TouchableOpacity style={styles.card} onPress={onPress}>
       <Image source={{ uri: image }} style={styles.thumbnail} />
       <View style={styles.content}>
         <Text style={styles.date}>{date}</Text>
@@ -21,7 +22,7 @@ export default function EventCard({ image, date, title, location }: Props) {
           <Text style={styles.location}>{location}</Text>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }
 

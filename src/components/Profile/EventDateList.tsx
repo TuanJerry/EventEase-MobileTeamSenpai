@@ -1,6 +1,7 @@
 // components/EventGroupList.tsx
 import React from 'react';
-import { View, Text, FlatList, Image, StyleSheet } from 'react-native';
+import { View, Text, FlatList, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { FavoriteEvent } from '../../types/event';
 
 interface Event {
   id: string;
@@ -15,7 +16,12 @@ interface EventGroup {
   events: Event[];
 }
 
-export default function EventDateList({ data }: { data: EventGroup[] }) {
+interface EventDateListProps {
+  data: EventGroup[];
+  onEventPress?: (event: FavoriteEvent) => void;
+}
+
+export default function EventDateList({ data, onEventPress }: EventDateListProps) {
   return (
     <FlatList
       data={data}
@@ -29,7 +35,22 @@ export default function EventDateList({ data }: { data: EventGroup[] }) {
             <Text style={styles.fullDateText}>{item.date}</Text>
           </View>
           {item.events.map(event => (
-            <View key={event.id} style={styles.eventCard}>
+            <TouchableOpacity 
+              key={event.id} 
+              style={styles.eventCard}
+              onPress={() => onEventPress?.({
+                id: event.id,
+                eventId: event.id,
+                title: event.title,
+                startTime: '',
+                endTime: '',
+                position: event.location,
+                participantNumber: 0,
+                imagesMain: event.image,
+                createdAt: '',
+                createdBy: ''
+              })}
+            >
               <Image source={{ uri: event.image }} style={styles.eventImage} />
               <View style={{ flex: 1 }}>
                 <Text style={styles.eventTitle}>{event.title}</Text>
@@ -38,7 +59,7 @@ export default function EventDateList({ data }: { data: EventGroup[] }) {
                   {event.location}
                 </Text>
               </View>
-            </View>
+            </TouchableOpacity>
           ))}
         </View>
       )}
