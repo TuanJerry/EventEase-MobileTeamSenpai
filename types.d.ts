@@ -11,4 +11,5 @@ type RootStackParamList = {
   Onboarding: undefined;
   Login: undefined;
   Friend: undefined;
+  Notification: undefined;
 };
