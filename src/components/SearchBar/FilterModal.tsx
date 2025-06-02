@@ -32,7 +32,6 @@ import DateTimePicker, {
 } from "@react-native-community/datetimepicker";
 import { formatDate } from "../../utils/formatDate";
 import { getDistrictsByCityName } from "../../utils/getDistrictsByCityName";
-import TextTicker from "react-native-text-ticker";
 
 export type FilterModalRef = {
   present: () => void;

@@ -6,6 +6,7 @@ import OnboardingScreen from "../screens/OnboardingScreen/OnboardingScreen";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import LoadingScreen from "../components/LoadingScreen/LoadingScreen";
 import FriendScreen from "../screens/Friends/FriendScreen";
+import NotificationScreen from "../screens/Notification/NotificationScreen";
 
 export const AuthContext = createContext({
   isLoggedIn: false,
@@ -51,6 +52,7 @@ export default function RootNavigator() {
           <>
             <Stack.Screen name="MainTabs" component={BottomTabNavigator} />
             <Stack.Screen name="Friend" component={FriendScreen} />
+            <Stack.Screen name="Notification" component={NotificationScreen} />
           </>
         )}
       </Stack.Navigator>

@@ -17,18 +17,22 @@ import { Tag } from "../../types/tag.types";
 import { useLocation } from "../../hooks/useLocation";
 import { extractCleanAddress } from "../../utils/extractCleanAddress";
 import FilterModal, { FilterModalRef } from "./FilterModal";
+import { StackNavigationProp } from "@react-navigation/stack";
 
 type SearchBarNavigationProp = NavigationProp<HomeStackParamList>;
 
 const SearchBar = () => {
   const navigation = useNavigation<SearchBarNavigationProp>();
+  const navigationToNotify =
+    useNavigation<StackNavigationProp<RootStackParamList>>();
+
   const [searchText, setSearchText] = useState("");
   const [address, setAddress] = useState("");
   const modalRef = useRef<FilterModalRef>(null);
   const hasNotification = true;
 
-  const onPress = () => {
-    console.log("Notification button pressed");
+  const onNotificationPress = () => {
+    navigationToNotify.push("Notification");
   };
 
   const { location, errorMsg } = useLocation();
@@ -98,7 +102,7 @@ const SearchBar = () => {
             {address || "Đang xác định vị trí..."}
           </Text>
         </View>
-        <TouchableOpacity style={styles.button} onPress={onPress}>
+        <TouchableOpacity style={styles.button} onPress={onNotificationPress}>
           {/* Nút tròn nền tím */}
           <Icon name="bell" size={25} color="#fff" solid={false} />
           {/* Small dot if has notification */}

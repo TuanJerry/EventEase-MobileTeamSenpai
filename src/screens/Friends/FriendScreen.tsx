@@ -150,6 +150,7 @@ const friendSuggestions: FriendSuggestionProps[] = [
   },
 ];
 
+// const friendSuggestions: FriendSuggestionProps[] = [];
 const FriendScreen = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
