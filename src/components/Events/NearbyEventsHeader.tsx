@@ -6,15 +6,16 @@ import { useNavigation, NavigationProp } from '@react-navigation/native';
 type Props = {
   title: string;
   onFilterPress: () => void;
+  onBackPress?: () => void;
 };
 
-export default function NearbyEventsHeader({ title, onFilterPress }: Props) {
+export default function NearbyEventsHeader({ title, onFilterPress, onBackPress }: Props) {
   const navigation = useNavigation<NavigationProp<any>>();
 
   return (
     <View style={styles.headerContainer}>
       {/* Nút quay lại */}
-      <TouchableOpacity onPress={() => { navigation.goBack() }} >
+      <TouchableOpacity onPress={onBackPress || (() => navigation.goBack())}>
         <ArrowLeft size={24} color="#000" />
       </TouchableOpacity>
 

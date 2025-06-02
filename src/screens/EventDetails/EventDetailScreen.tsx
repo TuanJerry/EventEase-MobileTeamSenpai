@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, ActivityIn
 import { Ionicons } from '@expo/vector-icons';
 import ParticipantsBox from '../../components/EventDetails/ParticipantsBox';
 import { eventService } from '../../services/eventService';
-import { Event, EventDetailResponse } from '../../types/event';
+import { Event } from '../../types/event';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
@@ -34,33 +34,151 @@ export default function EventDetailScreen() {
   const [isSelf, setIsSelf] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
   const [relationshipId, setRelationshipId] = useState<string | null>(null);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
 
-  const fetchParticipantCount = async () => {
+  const fetchAllData = async () => {
     try {
-      console.log("=== Fetching Participant Count ===");
-      const response = await eventService.getParticipantCount(eventId);
-      console.log("Participant count response:", response);
-      if (response.data && typeof response.data.count === "number") {
-        setParticipants(response.data.count);
+      setIsInitialLoading(true);
+      // Gọi tất cả API cùng lúc
+      const [
+        eventDetailResponse,
+        participateResponse,
+        favoriteResponse,
+        trackResponse,
+        participantCountResponse
+      ] = await Promise.all([
+        eventService.getEventDetail(eventId),
+        eventService.checkParticipate(eventId),
+        eventService.checkFavorite(eventId),
+        eventService.checkTrack(eventId),
+        eventService.getParticipantCount(eventId)
+      ]);
+
+      // Cập nhật state với dữ liệu từ API
+      setEvent(eventDetailResponse.data);
+      setJoined(participateResponse.data.isParticipated);
+      setIsFavorited(favoriteResponse.data.isFavourited);
+      setIsTracked(trackResponse.data.isTracked);
+      setParticipants(participantCountResponse.data.count);
+
+      // Kiểm tra follow status nếu có event creator
+      if (eventDetailResponse.data?.createdBy?.id) {
+        const selfResponse = await eventService.checkSelf(eventDetailResponse.data.createdBy.id);
+        setIsSelf(selfResponse.data.isSelf);
+        
+        if (!selfResponse.data.isSelf) {
+          const followResponse = await eventService.checkFollow(eventDetailResponse.data.createdBy.id);
+          setIsFollowing(followResponse.data.isFollow);
+          if (followResponse.data.isFollow && followResponse.data.relationshipId) {
+            setRelationshipId(followResponse.data.relationshipId);
+          }
+        }
       }
+
+      setError(null);
     } catch (err) {
-      console.error("Error fetching participant count:", err);
+      console.error('Error fetching data:', err);
+      setError('Không thể tải thông tin sự kiện');
+    } finally {
+      setIsInitialLoading(false);
+      setLoading(false);
+    }
+  };
+
+  const handleJoin = async () => {
+    try {
+      if (joined) {
+        const response = await eventService.cancelParticipate(eventId);
+        if (response.status) {
+          setJoined(false);
+          const countResponse = await eventService.getParticipantCount(eventId);
+          setParticipants(countResponse.data.count);
+          Alert.alert('Thành công', 'Đã hủy tham gia sự kiện');
+        }
+      } else {
+        const response = await eventService.participateEvent(eventId);
+        if (response.status) {
+          setJoined(true);
+          const countResponse = await eventService.getParticipantCount(eventId);
+          setParticipants(countResponse.data.count);
+          Alert.alert('Thành công', 'Đã tham gia sự kiện');
+        }
+      }
+    } catch (err: any) {
+      console.error('Error in handleJoin:', err);
+      Alert.alert('Lỗi', err.response?.data?.message || 'Có lỗi xảy ra');
+    }
+  };
+
+  const handleFavorite = async () => {
+    try {
+      if (isFavorited) {
+        const response = await eventService.unfavoriteEvent(eventId);
+        if (response.status) {
+          setIsFavorited(false);
+          Alert.alert('Thành công', 'Đã xóa khỏi danh sách yêu thích');
+        }
+      } else {
+        const response = await eventService.favoriteEvent(eventId);
+        if (response.status) {
+          setIsFavorited(true);
+          Alert.alert('Thành công', 'Đã thêm vào danh sách yêu thích');
+        }
+      }
+    } catch (err: any) {
+      console.error('Error in handleFavorite:', err);
+      Alert.alert('Lỗi', err.response?.data?.message || 'Có lỗi xảy ra');
+    }
+  };
+
+  const handleTrack = async () => {
+    try {
+      if (isTracked) {
+        const response = await eventService.untrackEvent(eventId);
+        if (response.status) {
+          setIsTracked(false);
+          Alert.alert('Thành công', 'Đã hủy theo dõi sự kiện');
+        }
+      } else {
+        const response = await eventService.trackEvent(eventId);
+        if (response.status) {
+          setIsTracked(true);
+          Alert.alert('Thành công', 'Đã theo dõi sự kiện');
+        }
+      }
+    } catch (err: any) {
+      console.error('Error in handleTrack:', err);
+      Alert.alert('Lỗi', err.response?.data?.message || 'Có lỗi xảy ra');
+    }
+  };
+
+  const handleFollow = async () => {
+    try {
+      if (!event?.createdBy?.id) return;
+
+      if (isFollowing) {
+        const response = await eventService.unfollowUser(event.createdBy.id);
+        if (response.status) {
+          setIsFollowing(false);
+          Alert.alert('Thành công', 'Đã hủy theo dõi người dùng');
+        }
+      } else {
+        const response = await eventService.followUser(event.createdBy.id);
+        if (response.status) {
+          const followResponse = await eventService.checkFollow(event.createdBy.id);
+          setIsFollowing(followResponse.data.isFollow);
+          Alert.alert('Thành công', 'Đã theo dõi người dùng');
+        }
+      }
+    } catch (err: any) {
+      console.error('Error in handleFollow:', err);
+      Alert.alert('Lỗi', err.response?.data?.message || 'Có lỗi xảy ra');
     }
   };
 
   useEffect(() => {
-    fetchEventDetail();
-    checkParticipateStatus();
-    checkFavoriteStatus();
-    checkTrackStatus();
-    fetchParticipantCount();
+    fetchAllData();
   }, [eventId]);
-
-  useEffect(() => {
-    if (event?.createdBy?.id) {
-      checkSelfAndFollowStatus(event.createdBy.id);
-    }
-  }, [event?.createdBy?.id]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -77,221 +195,7 @@ export default function EventDetailScreen() {
     return () => clearInterval(interval);
   }, [currentIndex, event?.images]);
 
-  const fetchEventDetail = async () => {
-    try {
-      setLoading(true);
-      const response = await eventService.getEventDetail(eventId);
-      console.log("Event detail response:", response);
-      setEvent(response.data);
-      setError(null);
-    } catch (err) {
-      setError("Không thể tải thông tin sự kiện");
-      console.error("Error fetching event detail:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const checkParticipateStatus = async () => {
-    try {
-
-      console.log("=== Checking Participate Status ===");
-      console.log("Event ID:", eventId);
-
-      const response = await eventService.checkParticipate(eventId);
-      console.log("Check Response:", response);
-
-      setJoined(response.data.isParticipated);
-    } catch (err) {
-      console.error("Error checking participate status:", err);
-    }
-  };
-
-  const checkFavoriteStatus = async () => {
-    try {
-      const response = await eventService.checkFavorite(eventId);
-      setIsFavorited(response.data.isFavourited);
-    } catch (err) {
-      console.error("Error checking favorite status:", err);
-    }
-  };
-
-  const checkTrackStatus = async () => {
-    try {
-      console.log("=== Checking Track Status ===");
-      console.log("Event ID:", eventId);
-
-      const response = await eventService.checkTrack(eventId);
-      console.log("Check Track Response:", response);
-
-      setIsTracked(response.data.isTracked);
-    } catch (err) {
-      console.error("Error checking track status:", err);
-    }
-  };
-
-  const checkSelfAndFollowStatus = async (userId: string) => {
-    try {
-      console.log("=== Checking Self and Follow Status ===");
-      console.log("User ID:", userId);
-
-      // 1. Kiểm tra có phải tài khoản của mình không
-      const selfResponse = await eventService.checkSelf(userId);
-      console.log("Self Response:", selfResponse);
-      setIsSelf(selfResponse.data.isSelf);
-
-      // 2. Nếu không phải tài khoản của mình, kiểm tra trạng thái theo dõi
-      if (!selfResponse.data.isSelf) {
-        const followResponse = await eventService.checkFollow(userId);
-        console.log("Follow Response:", followResponse);
-        setIsFollowing(followResponse.data.isFollow);
-        if (followResponse.data.isFollow && followResponse.data.relationshipId) {
-          setRelationshipId(followResponse.data.relationshipId);
-        }
-      }
-    } catch (err) {
-      console.error("Error checking self and follow status:", err);
-    }
-  };
-
-  const handleJoin = async () => {
-    try {
-      console.log("=== Handle Join ===");
-      console.log("Current joined status:", joined);
-
-      if (joined) {
-        console.log("Cancelling participation for event:", eventId);
-        const response = await eventService.cancelParticipate(eventId);
-        console.log("Cancel response:", response);
-
-        if (response.status) {
-          setJoined(false);
-          fetchParticipantCount();
-          Alert.alert("Thành công", "Đã hủy tham gia sự kiện");
-        }
-      } else {
-        console.log("Participating in event:", eventId);
-        const response = await eventService.participateEvent(eventId);
-        console.log("Participate response:", response);
-
-        if (response.status) {
-          setJoined(true);
-          fetchParticipantCount();
-          Alert.alert("Thành công", "Đã tham gia sự kiện");
-        }
-      }
-    } catch (err: any) {
-      console.error("Error in handleJoin:", err);
-      console.error("Error response:", err.response?.data);
-      Alert.alert("Lỗi", err.response?.data?.message || "Có lỗi xảy ra");
-    }
-  };
-
-  const handleFavorite = async () => {
-    try {
-      if (isFavorited) {
-        console.log("Unfavoriting event:", eventId);
-        const response = await eventService.unfavoriteEvent(eventId);
-        console.log("Unfavorite response:", response);
-        if (response.status) {
-          setIsFavorited(false);
-          Alert.alert("Thành công", "Đã xóa khỏi danh sách yêu thích");
-        }
-      } else {
-        console.log("Favoriting event:", eventId);
-        const response = await eventService.favoriteEvent(eventId);
-        console.log("Favorite response:", response);
-        if (response.status) {
-          setIsFavorited(true);
-          Alert.alert("Thành công", "Đã thêm vào danh sách yêu thích");
-        }
-      }
-    } catch (err: any) {
-      console.error("Error in handleFavorite:", err);
-      console.error("Error response:", err.response?.data);
-      Alert.alert("Lỗi", err.response?.data?.message || "Có lỗi xảy ra");
-    }
-  };
-
-  const handleTrack = async () => {
-    try {
-      console.log("=== Handle Track ===");
-      console.log("Current tracked status:", isTracked);
-
-      if (isTracked) {
-        console.log("Untracking event:", eventId);
-        const response = await eventService.untrackEvent(eventId);
-        console.log("Untrack response:", response);
-
-        if (response.status) {
-          setIsTracked(false);
-          Alert.alert("Thành công", "Đã hủy theo dõi sự kiện");
-        }
-      } else {
-        console.log("Tracking event:", eventId);
-        const response = await eventService.trackEvent(eventId);
-        console.log("Track response:", response);
-
-        if (response.status) {
-          setIsTracked(true);
-          Alert.alert("Thành công", "Đã theo dõi sự kiện");
-        }
-      }
-    } catch (err: any) {
-      console.error("Error in handleTrack:", err);
-      console.error("Error response:", err.response?.data);
-      Alert.alert("Lỗi", err.response?.data?.message || "Có lỗi xảy ra");
-    }
-  };
-
-  const handleFollow = async () => {
-    try {
-      if (!event?.createdBy?.id) return;
-
-      if (isFollowing) {
-        // 4. Xử lý bỏ theo dõi
-        console.log("=== Unfollow Process ===");
-        console.log("User ID to unfollow:", event.createdBy.id);
-
-        console.log("Calling unfollow API with user ID:", event.createdBy.id);
-        const response = await eventService.unfollowUser(event.createdBy.id);
-        console.log("Unfollow API Response:", response);
-
-        if (response.status) {
-          setIsFollowing(false);
-          Alert.alert("Thành công", "Đã hủy theo dõi người dùng");
-        }
-      } else {
-        // 2. Xử lý theo dõi
-        console.log("=== Follow Process ===");
-        console.log("User ID to follow:", event.createdBy.id);
-
-        const response = await eventService.followUser(event.createdBy.id);
-        console.log("Follow API Response:", response);
-
-        if (response.status) {
-          // 3. Kiểm tra lại trạng thái theo dõi
-          const followResponse = await eventService.checkFollow(
-            event.createdBy.id
-          );
-          console.log("Check Follow Response:", followResponse);
-
-          setIsFollowing(followResponse.data.isFollow);
-          Alert.alert("Thành công", "Đã theo dõi người dùng");
-        }
-      }
-    } catch (err: any) {
-      console.error("Error in handleFollow:", err);
-      console.error("Error response:", err.response?.data);
-      Alert.alert("Lỗi", err.response?.data?.message || "Có lỗi xảy ra");
-    }
-  };
-
-  const renderImageItem = ({
-    item,
-  }: {
-    item: { id: string; link: string };
-  }) => (
+  const renderImageItem = ({ item }: { item: { id: string; link: string } }) => (
     <Image
       source={{ uri: item.link }}
       style={[styles.bannerImage, { width: screenWidth }]}
@@ -316,7 +220,7 @@ export default function EventDetailScreen() {
     );
   };
 
-  if (loading) {
+  if (isInitialLoading) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#4B49C8" />
@@ -337,10 +241,7 @@ export default function EventDetailScreen() {
           >
             <Text style={styles.retryText}>Quay về</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.retryButton}
-            onPress={fetchEventDetail}
-          >
+          <TouchableOpacity style={styles.retryButton} onPress={fetchAllData}>
             <Text style={styles.retryText}>Thử lại</Text>
           </TouchableOpacity>
         </View>
@@ -407,9 +308,11 @@ export default function EventDetailScreen() {
             <Ionicons name="arrow-back" size={24} color="#fff" />
           </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.iconButton}
-            onPress={handleFavorite}
+          <TouchableOpacity 
+            style={styles.iconButton} 
+            onPress={() => {
+              handleFavorite();
+            }}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
             <Ionicons
@@ -630,9 +533,6 @@ const styles = StyleSheet.create({
   followButtonText: {
     color: "#6366F1",
     fontWeight: "500",
-  },
-  followingButtonText: {
-    color: "#fff",
   },
   followingButtonText: {
     color: '#fff',

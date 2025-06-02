@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FlatList, SafeAreaView, StyleSheet, View, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { FlatList, SafeAreaView, StyleSheet, View, ActivityIndicator } from 'react-native';
 import EventCard from '../../components/Events/EventCard';
 import NearbyEventsHeader from '../../components/Events/NearbyEventsHeader';
 import { eventService } from '../../services/eventService';
