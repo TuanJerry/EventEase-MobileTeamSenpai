@@ -12,17 +12,32 @@ export function useLocation() {
         (async () => {
             setLoading(true);
             try {
+                console.log('Requesting location permission...');
                 const { status } = await Location.requestForegroundPermissionsAsync();
+                console.log('Location permission status:', status);
+                
                 if (status !== 'granted') {
                     setErrorMsg('Permission to access location was denied');
                     return;
                 }
 
-                const coords = await Location.getCurrentPositionAsync({});
-                const [loc] = await Location.reverseGeocodeAsync(coords.coords);
+                console.log('Getting current position...');
+                const coords = await Location.getCurrentPositionAsync({
+                    accuracy: Location.Accuracy.High,
+                });
+                console.log('Current coordinates:', coords);
+
+                console.log('Reverse geocoding...');
+                const [loc] = await Location.reverseGeocodeAsync({
+                    latitude: coords.coords.latitude,
+                    longitude: coords.coords.longitude
+                });
+                console.log('Geocoded location:', loc);
+
                 setCoordinates(coords);
                 setLocation(loc);
             } catch (error: any) {
+                console.error('Location error:', error);
                 setErrorMsg(error.message || 'Error getting location');
             } finally {
                 setLoading(false);

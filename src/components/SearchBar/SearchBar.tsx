@@ -1,4 +1,4 @@
-import { View, StyleSheet, Text, TouchableOpacity, TextInput } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, TextInput, Platform } from 'react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import Logo from '../../../assets/logo.svg';
 import Magnifier from '../../../assets/magnifier.svg';
@@ -27,19 +27,46 @@ const SearchBar = () => {
 
     const { location, errorMsg } = useLocation();
 
-    if (errorMsg) return <Text>Lỗi: {errorMsg}</Text>;
-
     useEffect(() => {
+        console.log('Location data:', location);
         if (location) {
+            // Xử lý riêng cho Android
+            let formattedAddress = '';
+            if (Platform.OS === 'android') {
+                formattedAddress = [
+                    location.streetNumber,
+                    location.street,
+                    location.district,   // Phường
+                    location.subregion,  // Quận
+                    location.region,     // Thành phố
+                    location.country
+                ].filter(Boolean).join(', ');
+            } else {
+                // Xử lý cho iOS
+                formattedAddress = [
+                    location.street,
+                    location.district,  // Phường
+                    location.subregion, // Quận
+                    location.city,      // Thành phố
+                    location.country
+                ].filter(Boolean).join(', ');
+            }
+
             const clean = extractCleanAddress({
-                formattedAddress: location.formattedAddress || '',
+                formattedAddress,
                 name: location.name,
                 street: location.street,
                 country: location.country,
             });
+            console.log('Clean address:', clean);
             setAddress(clean);
         }
     }, [location]);
+
+    if (errorMsg) {
+        console.log('Location error:', errorMsg);
+        return <Text>Lỗi: {errorMsg}</Text>;
+    }
 
     const handleSearch = () => {
         if (searchText.trim()) {
@@ -175,22 +202,23 @@ const styles = StyleSheet.create({
     magnifierIcon: {
         position: 'absolute',
         left: 0,
-        top: 18,
-        transform: [{ translateY: -12 }],
+        top: 8,
+        zIndex: 1,
     },
     verticalLine: {
         position: 'absolute',
-        left: 28,
-        top: '50%',
-        transform: [{ translateY: -20 }],
+        left: 32,
+        top: 8,
         color: '#807bf2',
-        fontSize: 24,
+        fontSize: 20,
     },
     input: {
         flex: 1,
         marginLeft: 45,
         fontSize: 16,
         color: '#fff',
+        height: 40,
+        paddingTop: 8,
     },
     filterButton: {
         backgroundColor: 'rgba(255, 255, 255, 0.1)',
