@@ -5,6 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  Button,
 } from "react-native";
 import SearchBar from "../../components/SearchBar/SearchBar";
 import EventList from "../../components/EventList/EventList";
@@ -12,6 +13,7 @@ import BoyArt from "../../../assets/boy-clipart.svg";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
+import { useNotification } from "../../hooks/useNotification";
 
 const mockEventsList = {
   title: "Sự kiện gần bạn",
@@ -64,11 +66,13 @@ const mockEventsList = {
 
 const HomeScreen = () => {
   const tabBarHeight = useBottomTabBarHeight();
+
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
   return (
     <View style={[styles.container, { marginBottom: tabBarHeight }]}>
       <SearchBar />
+
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerClassName="mt-4 pb-4"
