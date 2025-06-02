@@ -5,6 +5,7 @@ import BottomTabNavigator from "./BottomTabNavigator";
 import OnboardingScreen from "../screens/OnboardingScreen/OnboardingScreen";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import LoadingScreen from "../components/LoadingScreen/LoadingScreen";
+import FriendScreen from "../screens/Friends/FriendScreen";
 
 export const AuthContext = createContext({
   isLoggedIn: false,
@@ -12,7 +13,7 @@ export const AuthContext = createContext({
 });
 
 export default function RootNavigator() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
   const Stack = createStackNavigator();
   const [hasSeenOnboarding, setHasSeenOnboarding] = useState<boolean | null>(
     null
@@ -20,7 +21,6 @@ export default function RootNavigator() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    //AsyncStorage.clear();
     const checkOnboarding = async () => {
       const seen = await AsyncStorage.getItem("hasSeenOnboarding");
       setHasSeenOnboarding(seen === "true");
@@ -48,7 +48,10 @@ export default function RootNavigator() {
           </>
         )}
         {isLoggedIn && (
-          <Stack.Screen name="MainTabs" component={BottomTabNavigator} />
+          <>
+            <Stack.Screen name="MainTabs" component={BottomTabNavigator} />
+            <Stack.Screen name="Friend" component={FriendScreen} />
+          </>
         )}
       </Stack.Navigator>
     </AuthContext.Provider>

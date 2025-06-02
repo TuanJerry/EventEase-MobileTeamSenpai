@@ -10,4 +10,5 @@ type RootStackParamList = {
   MainTabs: undefined;
   Onboarding: undefined;
   Login: undefined;
+  Friend: undefined;
 };
