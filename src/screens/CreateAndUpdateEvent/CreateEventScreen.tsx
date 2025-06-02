@@ -23,7 +23,7 @@ type CreateEventScreenProps = {
 };
 
 export default function CreateEventScreen({ navigation }: CreateEventScreenProps) {
-  const [form, setForm] = useState<EventForm>({
+  const [form, setForm] = useState<EventFormData>({
     title: '',
     description: '',
     images: [],

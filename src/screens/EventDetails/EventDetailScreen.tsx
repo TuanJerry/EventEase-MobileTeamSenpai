@@ -63,15 +63,25 @@ export default function EventDetailScreen() {
 
       // Kiểm tra follow status nếu có event creator
       if (eventDetailResponse.data?.createdBy?.id) {
-        const selfResponse = await eventService.checkSelf(eventDetailResponse.data.createdBy.id);
-        setIsSelf(selfResponse.data.isSelf);
-        
-        if (!selfResponse.data.isSelf) {
-          const followResponse = await eventService.checkFollow(eventDetailResponse.data.createdBy.id);
-          setIsFollowing(followResponse.data.isFollow);
-          if (followResponse.data.isFollow && followResponse.data.relationshipId) {
-            setRelationshipId(followResponse.data.relationshipId);
+        try {
+          const selfResponse = await eventService.checkSelf(eventDetailResponse.data.createdBy.id);
+          setIsSelf(selfResponse.data.isSelf);
+          
+          if (!selfResponse.data.isSelf) {
+            try {
+              const followResponse = await eventService.checkFollow(eventDetailResponse.data.createdBy.id);
+              setIsFollowing(followResponse.data.isFollow);
+              if (followResponse.data.isFollow && followResponse.data.relationshipId) {
+                setRelationshipId(followResponse.data.relationshipId);
+              }
+            } catch (followErr) {
+              console.log('Check Follow Error:', followErr);
+              // Không cần set error vì đây không phải lỗi nghiêm trọng
+            }
           }
+        } catch (selfErr) {
+          console.log('Check Self Error:', selfErr);
+          // Không cần set error vì đây không phải lỗi nghiêm trọng
         }
       }
 
