@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   ScrollView,
   TextInput,
@@ -7,29 +7,31 @@ import {
   Alert,
   ActivityIndicator,
 } from "react-native";
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { EventFormData } from '../../types/event.d'; 
-import { eventService } from '../../services/eventService';
-import EventImagePicker from '../../components/EventForm/EventImagePicker';
-import TagSelector from '../../components/EventForm/TagSelector';
-import DateTimePickerGroup from '../../components/EventForm/DateTimePickerGroup';
-import LocationInput from '../../components/EventForm/LocationInput';
-import EventFormHeader from '../../components/EventForm/EventFormHeader';
-import { styles } from '../../components/EventForm/EventForm.style';
-import { createEventFormData } from '../../utils/createFormData';
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { EventFormData } from "../../types/event.d";
+import { eventService } from "../../services/eventService";
+import EventImagePicker from "../../components/EventForm/EventImagePicker";
+import TagSelector from "../../components/EventForm/TagSelector";
+import DateTimePickerGroup from "../../components/EventForm/DateTimePickerGroup";
+import LocationInput from "../../components/EventForm/LocationInput";
+import EventFormHeader from "../../components/EventForm/EventFormHeader";
+import { styles } from "../../components/EventForm/EventForm.style";
+import { createEventFormData } from "../../utils/createFormData";
 
 type CreateEventScreenProps = {
   navigation: NativeStackNavigationProp<any>;
 };
 
-export default function CreateEventScreen({ navigation }: CreateEventScreenProps) {
+export default function CreateEventScreen({
+  navigation,
+}: CreateEventScreenProps) {
   const [form, setForm] = useState<EventFormData>({
-    title: '',
-    description: '',
+    title: "",
+    description: "",
     images: [],
     startTime: null,
     endTime: null,
-    location: '',
+    location: "",
     capacity: 0,
     tags: [],
   });
@@ -37,34 +39,46 @@ export default function CreateEventScreen({ navigation }: CreateEventScreenProps
   const [loading, setLoading] = useState(false);
   const [showStartPicker, setShowStartPicker] = useState(false);
   const [showEndPicker, setShowEndPicker] = useState(false);
-  const [searchText, setSearchText] = useState('');
-  const allTags = ['Âm nhạc', 'Thể thao', 'Hội thảo', 'Giáo dục'];
+  const [searchText, setSearchText] = useState("");
+  const allTags = ["Âm nhạc", "Thể thao", "Hội thảo", "Giáo dục"];
 
   const handleCreateEvent = async () => {
     try {
       setLoading(true);
-      if (!form.title || !form.description || !form.startTime || !form.endTime || !form.location) {
-        Alert.alert('Thông báo', 'Vui lòng điền đầy đủ thông tin sự kiện.');
+      if (
+        !form.title ||
+        !form.description ||
+        !form.startTime ||
+        !form.endTime ||
+        !form.location
+      ) {
+        Alert.alert("Thông báo", "Vui lòng điền đầy đủ thông tin sự kiện.");
         setLoading(false);
         return;
       }
       if (form.startTime >= form.endTime) {
-        Alert.alert('Thông báo', 'Thời gian bắt đầu phải trước thời gian kết thúc.');
+        Alert.alert(
+          "Thông báo",
+          "Thời gian bắt đầu phải trước thời gian kết thúc."
+        );
         setLoading(false);
         return;
       }
       if (form.capacity < 0) {
-        Alert.alert('Thông báo', 'Số lượng tham gia không thể âm.');
+        Alert.alert("Thông báo", "Số lượng tham gia không thể âm.");
         setLoading(false);
         return;
       }
       if (form.images.length === 0) {
-        Alert.alert('Thông báo', 'Vui lòng thêm ít nhất một ảnh hoặc video cho sự kiện.');
+        Alert.alert(
+          "Thông báo",
+          "Vui lòng thêm ít nhất một ảnh hoặc video cho sự kiện."
+        );
         setLoading(false);
         return;
       }
       if (form.tags.length === 0) {
-        Alert.alert('Thông báo', 'Vui lòng chọn ít nhất một tag cho sự kiện.');
+        Alert.alert("Thông báo", "Vui lòng chọn ít nhất một tag cho sự kiện.");
         setLoading(false);
         return;
       }
@@ -76,44 +90,46 @@ export default function CreateEventScreen({ navigation }: CreateEventScreenProps
       const response = await eventService.createEvent(formData);
       if (response.data) {
         console.log("Event created successfully:", response.data);
-        alert('Sự kiện đã được tạo thành công!');
+        alert("Sự kiện đã được tạo thành công!");
         // Reset form after successful creation
         setForm({
-          title: '',
-          description: '',
+          title: "",
+          description: "",
           images: [],
           startTime: null,
           endTime: null,
-          location: '',
+          location: "",
           capacity: 0,
           tags: [],
         });
         navigation.goBack();
       } else {
-        alert(`Lỗi khi khởi tạo sự kiện, ${response.code}`)
+        alert(`Lỗi khi khởi tạo sự kiện, ${response.code}`);
       }
     } catch (error) {
-      alert('Lỗi khi tạo sự kiện. Vui lòng thử lại hoặc báo cáo với team phát triển phần mềm.');
+      alert(
+        "Lỗi khi tạo sự kiện. Vui lòng thử lại hoặc báo cáo với team phát triển phần mềm."
+      );
       navigation.goBack();
-      console.error('Error creating event:', error);
+      console.error("Error creating event:", error);
     } finally {
       setLoading(false);
     }
-  }
+  };
 
-    if (loading) {
-      return (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#4B49C8" />
-        </View>
-      );
-    }
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#4B49C8" />
+      </View>
+    );
+  }
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <EventFormHeader 
+      <EventFormHeader
         title="Tạo bài sự kiện"
-        onBackPress={() => navigation.goBack()} 
+        onBackPress={() => navigation.goBack()}
         onSubmitPress={() => handleCreateEvent()}
         submitLabel="ĐĂNG"
       />
@@ -148,7 +164,6 @@ export default function CreateEventScreen({ navigation }: CreateEventScreenProps
         setEndTime={(endTime) => setForm({ ...form, endTime })}
       />
 
-
       <View style={styles.row}>
         <View style={styles.half}>
           <Text style={styles.label}>Tags</Text>
@@ -169,7 +184,7 @@ export default function CreateEventScreen({ navigation }: CreateEventScreenProps
             keyboardType="numeric"
             value={form.capacity.toString()}
             onChangeText={(text) =>
-              setForm({ ...form, capacity: parseInt(text || '0') })
+              setForm({ ...form, capacity: parseInt(text || "0") })
             }
           />
         </View>

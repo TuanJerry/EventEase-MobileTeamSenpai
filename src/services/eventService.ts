@@ -360,7 +360,7 @@ export const eventService = {
     try {
       console.log('=== Check Follow API ===');
       console.log('User ID:', userId);
-      const response = await axiosInstance.get(`/follower/${userId}`);
+      const response = await axiosInstance.get(`/follower/isFavourite/${userId}`);
       console.log('Response:', response.data);
       return response.data;
     } catch (error) {

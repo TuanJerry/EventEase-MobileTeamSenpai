@@ -6,8 +6,8 @@ import { Home, Calendar, MapPin, User, Plus } from "lucide-react-native";
 // Screens
 import HomeStackNavigator from "./HomeStackNavigator";
 import CalendarScreen from "../screens/CalendarScreen";
-import LocationScreen from "../screens/LocationScreen";
-import ProfileStackNavigator from './ProfileStackNavigator';
+import LocationScreen from "../screens/LocationScreen/LocationScreen";
+import ProfileStackNavigator from "./ProfileStackNavigator";
 import CreateEventScreen from "../screens/CreateAndUpdateEvent/CreateEventScreen";
 
 const Tab = createBottomTabNavigator();
@@ -72,7 +72,9 @@ export default function BottomTabNavigator() {
           return {
             headerShown: false,
             tabBarIcon: () => <Plus color="#fff" size={30} />,
-            tabBarButton: isFocused ? () => null : (props) => <CustomTabBarButton {...props} />,
+            tabBarButton: isFocused
+              ? () => null
+              : (props) => <CustomTabBarButton {...props} />,
           };
         }}
       />
@@ -97,7 +99,6 @@ export default function BottomTabNavigator() {
         }}
       />
     </Tab.Navigator>
-
   );
 }
 
