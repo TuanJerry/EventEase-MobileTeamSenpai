@@ -10,4 +10,32 @@ export const userService = {
       throw error;
     }
   },
+
+  updatePhone(phone: string): Promise<any> {
+    return axiosInstance.put('/uses/phone', { phone });
+  },
+
+  updateProfile(data: {
+    firstName: string;
+    lastName: string;
+    dateOfBirth: Date;
+    email: string;
+    location: string;
+  }): Promise<any> {
+    return axiosInstance.put('/users/profile', data);
+  },
+
+  updateAvatar(avatarUri: string): Promise<any> {
+    const formData = new FormData();
+    formData.append('avatar', {
+      uri: avatarUri,
+      type: 'image/jpeg',
+      name: 'avatar.jpg',
+    });
+    return axiosInstance.put('/users/avatar', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  },
 }; 
