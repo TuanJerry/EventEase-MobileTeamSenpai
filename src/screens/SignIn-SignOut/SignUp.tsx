@@ -6,6 +6,8 @@ import {
   Pressable,
   KeyboardAvoidingView,
   Platform,
+  Alert,
+  ScrollView,
 } from "react-native";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import HeaderBack from "../../components/HeaderBackButton";
@@ -13,6 +15,7 @@ import InputField from "../../components/Authentication/AuthInputField";
 import Button from "../../components/Authentication/AuthButton";
 import SocialButton from "../../components/Authentication/SocialButton";
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { authService } from "../../services/authService";
 
 import Logo from "../../../assets/Logo_2.svg";
 import GoogleLogo from "../../../assets/Google.svg";
@@ -23,23 +26,94 @@ type SignUpScreenProps = {
 };
 
 export default function SignUpScreen({ navigation }: SignUpScreenProps) {
-    const [fullName, setFullName] = useState("");
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
     const [email, setEmail] = useState("");
+    const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [errors, setErrors] = useState<{[key: string]: string}>({});
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-    const handleSignUp = () => {
-      if (!fullName || !email || !password || !confirmPassword) {
-        console.log("Vui lòng điền đầy đủ thông tin");
+    const validateEmail = (email: string) => {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return emailRegex.test(email);
+    };
+
+    const validatePassword = (password: string) => {
+      // Ít nhất 8 ký tự, 1 chữ hoa, 1 chữ thường, 1 số và 1 ký tự đặc biệt
+      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+      return passwordRegex.test(password);
+    };
+
+    const validateForm = () => {
+      const newErrors: {[key: string]: string} = {};
+
+      if (!firstName.trim()) {
+        newErrors.firstName = "Vui lòng nhập tên";
+      }
+
+      if (!lastName.trim()) {
+        newErrors.lastName = "Vui lòng nhập họ";
+      }
+
+      if (!username.trim()) {
+        newErrors.username = "Vui lòng nhập tên đăng nhập";
+      }
+
+      if (!email.trim()) {
+        newErrors.email = "Vui lòng nhập email";
+      } else if (!validateEmail(email)) {
+        newErrors.email = "Email không hợp lệ";
+      }
+
+      if (!password) {
+        newErrors.password = "Vui lòng nhập mật khẩu";
+      } else if (!validatePassword(password)) {
+        newErrors.password = "Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt";
+      }
+
+      if (!confirmPassword) {
+        newErrors.confirmPassword = "Vui lòng xác nhận mật khẩu";
+      } else if (password !== confirmPassword) {
+        newErrors.confirmPassword = "Mật khẩu xác nhận không khớp";
+      }
+
+      setErrors(newErrors);
+      return Object.keys(newErrors).length === 0;
+    };
+
+    const handleSignUp = async () => {
+      if (!validateForm()) {
         return;
       }
-      if (password !== confirmPassword) {
-        console.log("Mật khẩu không khớp");
-        return;
-      }
 
-      // Xử lý logic đăng ký ở đây
-      console.log("Đăng ký thành công");
+      try {
+        setLoading(true);
+        const response = await authService.register({
+          firstName,
+          lastName,
+          email,
+          username,
+          password,
+          confirmPassword
+        });
+
+        if (response.status) {
+          Alert.alert("Thành công", response.message, [
+            {
+              text: "OK",
+              onPress: () => navigation.navigate("SignIn")
+            }
+          ]);
+        }
+      } catch (error: any) {
+        Alert.alert("Lỗi", error.message || "Có lỗi xảy ra khi đăng ký");
+      } finally {
+        setLoading(false);
+      }
     };
 
     return (
@@ -47,56 +121,125 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
         style={{ flex: 1, backgroundColor: "#fff" }}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
-        <View style={styles.container}>
+        <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
           <HeaderBack />
           <View style={styles.Logo}>
             <Logo width={45.55} height={44.18} />
             <Text style={styles.name}>Đăng ký</Text>
           </View>
 
+          <View style={styles.nameContainer}>
+            <View style={styles.nameField}>
+              <InputField
+                placeholder="Họ"
+                icon={() => <FontAwesome name="user" size={20} color="#888" />}
+                value={lastName}
+                onChangeText={(text) => {
+                  setLastName(text);
+                  setErrors(prev => ({...prev, lastName: ''}));
+                }}
+                error={errors.lastName}
+              />
+            </View>
+            <View style={styles.nameField}>
+              <InputField
+                placeholder="Tên"
+                icon={() => <FontAwesome name="user" size={20} color="#888" />}
+                value={firstName}
+                onChangeText={(text) => {
+                  setFirstName(text);
+                  setErrors(prev => ({...prev, firstName: ''}));
+                }}
+                error={errors.firstName}
+              />
+            </View>
+          </View>
+
           <InputField
-            placeholder="Họ và tên"
+            placeholder="Tên đăng nhập"
             icon={() => <FontAwesome name="user" size={20} color="#888" />}
-            value={fullName}
-            onChangeText={setFullName}
+            value={username}
+            onChangeText={(text) => {
+              setUsername(text);
+              setErrors(prev => ({...prev, username: ''}));
+            }}
+            error={errors.username}
           />
           <InputField
-            placeholder="abc@email.com"
+            placeholder="Email"
             icon={() => <FontAwesome name="envelope" size={20} color="#888" />}
             value={email}
-            onChangeText={setEmail}
+            onChangeText={(text) => {
+              setEmail(text);
+              setErrors(prev => ({...prev, email: ''}));
+            }}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            error={errors.email}
           />
           <InputField
-            placeholder="Nhập mật khẩu của bạn"
+            placeholder="Mật khẩu"
             isPassword
             icon={() => <FontAwesome name="lock" size={20} color="#888" />}
             value={password}
-            onChangeText={setPassword}
+            onChangeText={(text) => {
+              setPassword(text);
+              setErrors(prev => ({...prev, password: ''}));
+            }}
+            error={errors.password}
+            secureTextEntry={!showPassword}
+            rightIcon={
+              <Pressable onPress={() => setShowPassword(!showPassword)}>
+                <FontAwesome 
+                  name={showPassword ? "eye-slash" : "eye"} 
+                  size={20} 
+                  color="#888" 
+                />
+              </Pressable>
+            }
           />
           <InputField
             placeholder="Xác nhận mật khẩu"
             isPassword
             icon={() => <FontAwesome name="lock" size={20} color="#888" />}
             value={confirmPassword}
-            onChangeText={setConfirmPassword}
+            onChangeText={(text) => {
+              setConfirmPassword(text);
+              setErrors(prev => ({...prev, confirmPassword: ''}));
+            }}
+            error={errors.confirmPassword}
+            secureTextEntry={!showConfirmPassword}
+            rightIcon={
+              <Pressable onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
+                <FontAwesome 
+                  name={showConfirmPassword ? "eye-slash" : "eye"} 
+                  size={20} 
+                  color="#888" 
+                />
+              </Pressable>
+            }
           />
 
-          <View style={{ height: 30 }} />
+          <View style={{ height: 10 }} />
 
-          <Button title="ĐĂNG KÝ" onPress={handleSignUp} />
+          <Button 
+            title={loading ? "ĐANG XỬ LÝ..." : "ĐĂNG KÝ"} 
+            onPress={handleSignUp}
+            loading={loading}
+          />
 
           <Text style={styles.orText}>Hoặc</Text>
 
           <SocialButton
-            title="Đăng nhập với Google"
+            title="Đăng ký với Google"
             icon={GoogleLogo}
-            onPress={() => console.log("Google sign in")}
+            onPress={() => console.log("Google sign up")}
           />
 
           <SocialButton
-            title="Đăng nhập với Facebook"
+            title="Đăng ký với Facebook"
             icon={FacebookLogo}
-            onPress={() => console.log("Facebook sign in")}
+            onPress={() => console.log("Facebook sign up")}
           />
 
           <View style={styles.signupRow}>
@@ -105,24 +248,26 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
               <Text style={styles.signupText}>Đăng nhập</Text>
             </Pressable>
           </View>
-        </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     );
   }
 
   const styles = StyleSheet.create({
     container: {
-      padding: 24,
-      flexGrow: 1,
-      justifyContent: "flex-start",
+      flex: 1,
       backgroundColor: "#fff",
+    },
+    contentContainer: {
+      padding: 24,
+      paddingBottom: 40,
     },
     Logo: {
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "center",
       marginBottom: 32,
-      marginTop: 40,
+      marginTop: 20,
     },
     name: {
       color: "#1A1A1A",
@@ -133,14 +278,15 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
     },
     orText: {
       textAlign: "center",
-      marginVertical: 20,
+      marginVertical: 12,
       fontSize: 16,
       color: "#888",
     },
     signupRow: {
       flexDirection: "row",
       justifyContent: "center",
-      marginTop: 12,
+      marginTop: 8,
+      marginBottom: 70,
     },
     optionText: {
       fontSize: 16,
@@ -152,5 +298,13 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
       fontSize: 16,
       color: "#5668FD",
       fontWeight: "500",
+    },
+    nameContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      gap: 12,
+    },
+    nameField: {
+      flex: 1,
     },
   });

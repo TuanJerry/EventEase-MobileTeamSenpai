@@ -1,24 +1,27 @@
-import React, { useContext, useEffect } from "react";
-import {
-  createStackNavigator,
-  StackNavigationProp,
-} from "@react-navigation/stack";
+import React, { useContext } from "react";
+import { createStackNavigator } from "@react-navigation/stack";
 import { AuthContext } from "./RootNavigator";
 import SignInScreen from "../screens/SignIn-SignOut/SignIn";
 import SignUpScreen from "../screens/SignIn-SignOut/SignUp";
 import ForgotPasswordScreen from "../screens/SignIn-SignOut/Forgot";
 import VerifyCodeScreen from "../screens/SignIn-SignOut/Verify";
 import ResetPasswordScreen from "../screens/SignIn-SignOut/Reset";
-import { useNavigation } from "@react-navigation/native";
 
-const Stack = createStackNavigator();
+type AuthStackParamList = {
+  SignIn: undefined;
+  SignUp: undefined;
+  ForgotPassword: undefined;
+  VerifyCode: { email: string };
+  ResetPassword: { email: string; code: string };
+};
+
+const Stack = createStackNavigator<AuthStackParamList>();
 
 export default function AuthNavigator() {
-  const { isLoggedIn, setIsLoggedIn } = useContext(AuthContext);
-  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+  const { setIsLoggedIn } = useContext(AuthContext);
 
   const handleLogin = () => {
-    setIsLoggedIn(true); // Example usage to update the state
+    setIsLoggedIn(true);
   };
 
   return (

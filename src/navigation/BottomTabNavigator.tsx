@@ -1,14 +1,13 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { View, TouchableOpacity, StyleSheet } from "react-native";
-import { Home, Calendar, MapPin, User, Plus } from "lucide-react-native";
-import { useNavigationState } from "@react-navigation/native";
+import { Home, Users, MapPin, User, Plus } from "lucide-react-native";
 
 // Screens
 import HomeStackNavigator from "./HomeStackNavigator";
-import CalendarScreen from "../screens/CalendarScreen";
-import LocationScreen from "../screens/LocationScreen";
-import ProfileStackNavigator from './ProfileStackNavigator';
+import FriendScreen from "../screens/Friends/FriendScreen";
+import LocationScreen from "../screens/LocationScreen/LocationScreen";
+import ProfileStackNavigator from "./ProfileStackNavigator";
 import CreateEventScreen from "../screens/CreateAndUpdateEvent/CreateEventScreen";
 
 const Tab = createBottomTabNavigator();
@@ -16,7 +15,7 @@ const Tab = createBottomTabNavigator();
 const CustomTabBarButton = ({ children, onPress }: any) => (
   <TouchableOpacity
     style={{
-      top: -30,
+      top: -35,
       justifyContent: "center",
       alignItems: "center",
     }}
@@ -36,7 +35,7 @@ export default function BottomTabNavigator() {
           backgroundColor: "#ffffff",
           borderTopLeftRadius: 15,
           borderTopRightRadius: 15,
-          height: 60,
+          height: 70,
           elevation: 0,
           borderTopWidth: 0,
         },
@@ -53,12 +52,12 @@ export default function BottomTabNavigator() {
         }}
       />
       <Tab.Screen
-        name="Calendar"
-        component={CalendarScreen}
+        name="Friends"
+        component={FriendScreen}
         options={{
           headerShown: false,
           tabBarIcon: ({ focused }) => (
-            <Calendar color={focused ? "#4B7BE5" : "#748c94"} size={24} />
+            <Users color={focused ? "#4B7BE5" : "#748c94"} size={24} />
           ),
         }}
       />
@@ -73,7 +72,9 @@ export default function BottomTabNavigator() {
           return {
             headerShown: false,
             tabBarIcon: () => <Plus color="#fff" size={30} />,
-            tabBarButton: isFocused ? () => null : (props) => <CustomTabBarButton {...props} />,
+            tabBarButton: isFocused
+              ? () => null
+              : (props) => <CustomTabBarButton {...props} />,
           };
         }}
       />
@@ -98,16 +99,15 @@ export default function BottomTabNavigator() {
         }}
       />
     </Tab.Navigator>
-
   );
 }
 
 const styles = StyleSheet.create({
   addButton: {
-    width: 60,
-    height: 60,
+    width: 65,
+    height: 65,
     backgroundColor: "#4B7BE5",
-    borderRadius: 30,
+    borderRadius: 32.5,
     justifyContent: "center",
     alignItems: "center",
     shadowColor: "#4B7BE5",

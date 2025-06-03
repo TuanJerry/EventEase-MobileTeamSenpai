@@ -20,24 +20,50 @@ interface District {
   wards?: any[]; // Có thể thêm chi tiết nếu cần
 }
 
-export const getDistrictsByCityName = async (cityName: string): Promise<string[]> => {
+const cityCodeMap: Record<string, number> = {
+  "ha noi": 1,
+  "ho chi minh": 79,
+  "da nang": 48,
+  "hai phong": 31,
+  "can tho": 92,
+  "binh duong": 74,
+  "dong nai": 75,
+  "khanh hoa": 56,
+  "quang ninh": 22,
+  "thua thien hue": 46,
+  "nghe an": 40,
+  "da lat": 68, // (lam dong)
+  "vinh phuc": 26,
+  "quang nam": 49,
+  "tay ninh": 72,
+  "long an": 80,
+  "tien giang": 82,
+  "ba ria vung tau": 77,
+  "nam dinh": 36,
+  "ninh binh": 37,
+  "ben tre": 83,
+};
+
+export const getDistrictsByCityName = async (
+  cityName: string
+): Promise<string[]> => {
   try {
-    const res = await fetch("https://provinces.open-api.vn/api/p/");
-    const provinces: Province[] = await res.json();
+    const normalizedCityName = removeVietnameseTones(cityName)
+      .toLowerCase()
+      .trim();
 
-    const normalizedCityName = removeVietnameseTones(cityName);
-    const city: Province | undefined = provinces.find((p: Province) =>
-      removeVietnameseTones(p.name).includes(normalizedCityName)
+    const cityCode = cityCodeMap[normalizedCityName];
+    if (!cityCode)
+      throw new Error(`Không tìm thấy mã tỉnh/thành phố: ${cityName}`);
+
+    const detailRes = await fetch(
+      `https://provinces.open-api.vn/api/p/${cityCode}?depth=2`
     );
-
-    if (!city) throw new Error("Không tìm thấy tỉnh/thành phố!");
-
-    const detailRes = await fetch(`https://provinces.open-api.vn/api/p/${city.code}?depth=2`);
     const detail: Province = await detailRes.json();
 
-    return detail.districts.map((d: District) => d.name); // Trả về danh sách tên quận/huyện
-  } catch (error: any) { // Xác định kiểu cho error
-    console.error("Lỗi khi lấy danh sách quận:", error.message);
+    return detail.districts.map((d: District) => d.name);
+  } catch (error: any) {
+    //console.error("Lỗi khi lấy danh sách quận:", error.message);
     return [];
   }
 };

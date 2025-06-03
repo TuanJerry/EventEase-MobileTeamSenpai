@@ -108,4 +108,27 @@ export interface EventDetailResponse {
   timestamp: string;
   message: string;
   data: Event;
+}
+
+export interface EventListProps {
+    title: string;
+    events: Array<{
+        id: string | number;
+        title: string;
+        backgroundImage: string;
+        date: string;
+        location: string;
+        avatars?: string[];
+        totalParticipants?: number;
+    }>;
+}
+
+export interface EventCardProps {
+    id: string | number;
+    title: string;
+    date: string;
+    backgroundImage: string;
+    location: string;
+    avatars?: string[];
+    totalParticipants?: number;
 } 

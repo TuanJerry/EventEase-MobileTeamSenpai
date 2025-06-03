@@ -1,14 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axiosInstance from './axios';
-
-interface LoginResponse {
-  access_token: string;
-  refresh_token: string;
-}
-
-interface LogoutResponse {
-  message: string;
-}
+import axios from 'axios';
+import { API_URL } from '../config/constants';
+import { LoginResponse, LogoutResponse, RegisterRequest, RegisterResponse } from '../types/auth';
 
 export const authService = {
   async login(username: string, password: string): Promise<LoginResponse> {
@@ -82,4 +76,43 @@ export const authService = {
       return false;
     }
   },
+
+  forgotPassword: async (email: string) => {
+    try {
+      const response = await axios.post(`${API_URL}/auth/forgot-password`, { email });
+      return response.data;
+    } catch (error: any) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  verifyOTP: async (email: string, code: string) => {
+    try {
+      const response = await axios.post(`${API_URL}/auth/verify-otp`, { email, code });
+      return response.data;
+    } catch (error: any) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  resetPassword: async (email: string, newPassword: string, confirmPassword: string) => {
+    try {
+      const response = await axios.post(`${API_URL}/auth/reset-password/${email}`, {
+        newPassword,
+        confirmPassword
+      });
+      return response.data;
+    } catch (error: any) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  register: async (data: RegisterRequest): Promise<RegisterResponse> => {
+    try {
+      const response = await axios.post<RegisterResponse>(`${API_URL}/users/register`, data);
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Có lỗi xảy ra khi đăng ký');
+    }
+  }
 }; 

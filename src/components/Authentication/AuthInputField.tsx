@@ -1,85 +1,78 @@
-import React, { useState } from "react";
-import {
-    View,
-    TextInput,
-    StyleSheet,
-    Image,
-    TextInputProps,
-    TouchableOpacity,
-} from "react-native";
+import React from "react";
+import { View, TextInput, Text, StyleSheet, Pressable } from "react-native";
 import { SvgProps } from "react-native-svg";
-import FontAwesome from "react-native-vector-icons/FontAwesome";
 
-type InputFieldProps = TextInputProps & {
-    placeholder: string;
-    icon: React.FC<SvgProps> | number; // SVG component hoặc require(image)
-    isPassword?: boolean;
-};
+interface InputFieldProps {
+  placeholder: string;
+  icon: React.FC<SvgProps>;
+  isPassword?: boolean;
+  value?: string;
+  onChangeText?: (text: string) => void;
+  keyboardType?: "default" | "email-address" | "numeric" | "phone-pad";
+  autoCapitalize?: "none" | "sentences" | "words" | "characters";
+  error?: string;
+  secureTextEntry?: boolean;
+  rightIcon?: React.ReactNode;
+}
 
-const InputField: React.FC<InputFieldProps> = ({
-    icon: Icon,
-    placeholder,
-    isPassword = false,
-    ...rest
-}) => {
-    const [isSecure, setIsSecure] = useState(isPassword);
-    const [password, setPassword] = useState("");
-    return (
-      <View style={styles.inputContainer}>
-        {typeof Icon === "function" ? (
-          <Icon width={20} height={20} style={styles.icon} />
-        ) : (
-          <Image source={Icon} style={styles.icon} />
-        )}
+export default function InputField({
+  placeholder,
+  icon: Icon,
+  isPassword = false,
+  value,
+  onChangeText,
+  keyboardType = "default",
+  autoCapitalize = "none",
+  error,
+  secureTextEntry,
+  rightIcon,
+}: InputFieldProps) {
+  return (
+    <View style={styles.container}>
+      <View style={[styles.inputContainer, error && styles.inputError]}>
+        <Icon width={20} height={20} />
         <TextInput
           style={styles.input}
           placeholder={placeholder}
-          placeholderTextColor="#888"
-          {...rest}
-          secureTextEntry={isSecure}
-          value={password}
-          onChangeText={(text) => {
-            setPassword(text);
-            if (rest.onChangeText) rest.onChangeText(text);
-          }}
+          secureTextEntry={secureTextEntry ?? isPassword}
+          value={value}
+          onChangeText={onChangeText}
+          keyboardType={keyboardType}
+          autoCapitalize={autoCapitalize}
         />
-        {isPassword && (
-          <TouchableOpacity onPress={() => setIsSecure(!isSecure)}>
-            <FontAwesome
-                name={isSecure ? "eye-slash" : "eye"}
-                size={20}
-                color="#888"
-            />
-          </TouchableOpacity>
-        )}
+        {rightIcon}
       </View>
-    );
-};
+      {error && <Text style={styles.errorText}>{error}</Text>}
+    </View>
+  );
+}
 
 const styles = StyleSheet.create({
-    inputContainer: {
-        flexDirection: "row",
-        alignItems: "center",
-        borderWidth: 1,
-        borderColor: "#E0E0E0",
-        borderRadius: 12,
-        paddingHorizontal: 12,
-        paddingVertical: 10,
-        backgroundColor: "#fff",
-        marginVertical: 6,
-    },
-    icon: {
-        width: 20,
-        marginLeft: 1,
-        flex: 1,
-        tintColor: "#888",
-    },
-    input: {
-        marginLeft: 20,
-        flex: 1,
-        fontSize: 16,
-        color: "#37364A",
-    },
+  container: {
+    marginBottom: 16,
+  },
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#E5E5E5",
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    height: 50,
+  },
+  inputError: {
+    borderColor: "#FF3B30",
+  },
+  input: {
+    flex: 1,
+    marginLeft: 12,
+    fontSize: 16,
+    color: "#1A1A1A",
+  },
+  errorText: {
+    color: "#FF3B30",
+    fontSize: 12,
+    marginTop: 4,
+    marginLeft: 4,
+  },
 });
-
-export default InputField;
