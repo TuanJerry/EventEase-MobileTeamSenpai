@@ -1,11 +1,4 @@
-import {
-  View,
-  Text,
-  FlatList,
-  StyleSheet,
-  Pressable,
-  Animated,
-} from "react-native";
+import { View, Text, FlatList, Pressable, Animated } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import Onboarding1 from "../../../assets/onboarding1.svg";
 import Onboarding2 from "../../../assets/onboarding2.svg";

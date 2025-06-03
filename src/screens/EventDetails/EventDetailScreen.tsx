@@ -1,11 +1,25 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, ActivityIndicator, FlatList, Dimensions, Alert } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import ParticipantsBox from '../../components/EventDetails/ParticipantsBox';
-import { eventService } from '../../services/eventService';
-import { Event } from '../../types/event';
-import { useRoute, useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import React, { useState, useEffect, useRef } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  ScrollView,
+  ActivityIndicator,
+  FlatList,
+  Dimensions,
+  Alert,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import ParticipantsBox from "../../components/EventDetails/ParticipantsBox";
+import { eventService } from "../../services/eventService";
+import notificationService from "../../services/notificationService";
+import { Event } from "../../types/event";
+import { useRoute, useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import * as Notifications from "expo-notifications";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type RootStackParamList = {
   EventDetail: { eventId: string };
@@ -28,9 +42,10 @@ export default function EventDetailScreen() {
   const [favoriteId, setFavoriteId] = useState<string | null>(null);
   const [participateId, setParticipateId] = useState<string | null>(null);
   const [isTracked, setIsTracked] = useState(false);
+  const [notificationId, setNotificationId] = useState<string | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const flatListRef = useRef<FlatList>(null);
-  const screenWidth = Dimensions.get('window').width;
+  const screenWidth = Dimensions.get("window").width;
   const [isSelf, setIsSelf] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
   const [relationshipId, setRelationshipId] = useState<string | null>(null);
@@ -45,13 +60,13 @@ export default function EventDetailScreen() {
         participateResponse,
         favoriteResponse,
         trackResponse,
-        participantCountResponse
+        participantCountResponse,
       ] = await Promise.all([
         eventService.getEventDetail(eventId),
         eventService.checkParticipate(eventId),
         eventService.checkFavorite(eventId),
         eventService.checkTrack(eventId),
-        eventService.getParticipantCount(eventId)
+        eventService.getParticipantCount(eventId),
       ]);
 
       // Cập nhật state với dữ liệu từ API
@@ -63,22 +78,32 @@ export default function EventDetailScreen() {
 
       // Kiểm tra follow status nếu có event creator
       if (eventDetailResponse.data?.createdBy?.id) {
-        const selfResponse = await eventService.checkSelf(eventDetailResponse.data.createdBy.id);
-        setIsSelf(selfResponse.data.isSelf);
-        
-        if (!selfResponse.data.isSelf) {
-          const followResponse = await eventService.checkFollow(eventDetailResponse.data.createdBy.id);
-          setIsFollowing(followResponse.data.isFollow);
-          if (followResponse.data.isFollow && followResponse.data.relationshipId) {
-            setRelationshipId(followResponse.data.relationshipId);
+        try {
+          const selfResponse = await eventService.checkSelf(eventDetailResponse.data.createdBy.id);
+          setIsSelf(selfResponse.data.isSelf);
+          
+          if (!selfResponse.data.isSelf) {
+            try {
+              const followResponse = await eventService.checkFollow(eventDetailResponse.data.createdBy.id);
+              setIsFollowing(followResponse.data.isFollow);
+              if (followResponse.data.isFollow && followResponse.data.relationshipId) {
+                setRelationshipId(followResponse.data.relationshipId);
+              }
+            } catch (followErr) {
+              console.log('Check Follow Error:', followErr);
+              // Không cần set error vì đây không phải lỗi nghiêm trọng
+            }
           }
+        } catch (selfErr) {
+          console.log('Check Self Error:', selfErr);
+          // Không cần set error vì đây không phải lỗi nghiêm trọng
         }
       }
 
       setError(null);
     } catch (err) {
-      console.error('Error fetching data:', err);
-      setError('Không thể tải thông tin sự kiện');
+      console.error("Error fetching data:", err);
+      setError("Không thể tải thông tin sự kiện");
     } finally {
       setIsInitialLoading(false);
       setLoading(false);
@@ -93,7 +118,7 @@ export default function EventDetailScreen() {
           setJoined(false);
           const countResponse = await eventService.getParticipantCount(eventId);
           setParticipants(countResponse.data.count);
-          Alert.alert('Thành công', 'Đã hủy tham gia sự kiện');
+          Alert.alert("Thành công", "Đã hủy tham gia sự kiện");
         }
       } else {
         const response = await eventService.participateEvent(eventId);
@@ -101,12 +126,12 @@ export default function EventDetailScreen() {
           setJoined(true);
           const countResponse = await eventService.getParticipantCount(eventId);
           setParticipants(countResponse.data.count);
-          Alert.alert('Thành công', 'Đã tham gia sự kiện');
+          Alert.alert("Thành công", "Đã tham gia sự kiện");
         }
       }
     } catch (err: any) {
-      console.error('Error in handleJoin:', err);
-      Alert.alert('Lỗi', err.response?.data?.message || 'Có lỗi xảy ra');
+      console.error("Error in handleJoin:", err);
+      Alert.alert("Lỗi", err.response?.data?.message || "Có lỗi xảy ra");
     }
   };
 
@@ -116,20 +141,37 @@ export default function EventDetailScreen() {
         const response = await eventService.unfavoriteEvent(eventId);
         if (response.status) {
           setIsFavorited(false);
-          Alert.alert('Thành công', 'Đã xóa khỏi danh sách yêu thích');
+          Alert.alert("Thành công", "Đã xóa khỏi danh sách yêu thích");
         }
       } else {
         const response = await eventService.favoriteEvent(eventId);
         if (response.status) {
           setIsFavorited(true);
-          Alert.alert('Thành công', 'Đã thêm vào danh sách yêu thích');
+          Alert.alert("Thành công", "Đã thêm vào danh sách yêu thích");
         }
       }
     } catch (err: any) {
-      console.error('Error in handleFavorite:', err);
-      Alert.alert('Lỗi', err.response?.data?.message || 'Có lỗi xảy ra');
+      console.error("Error in handleFavorite:", err);
+      Alert.alert("Lỗi", err.response?.data?.message || "Có lỗi xảy ra");
     }
   };
+
+  // Load saved notification ID when component mounts
+  useEffect(() => {
+    const loadNotificationId = async () => {
+      try {
+        const savedId = await AsyncStorage.getItem(
+          `event_notification_${eventId}`
+        );
+        if (savedId) {
+          setNotificationId(savedId);
+        }
+      } catch (error) {
+        console.error("Error loading notification ID:", error);
+      }
+    };
+    loadNotificationId();
+  }, [eventId]);
 
   const handleTrack = async () => {
     try {
@@ -137,18 +179,56 @@ export default function EventDetailScreen() {
         const response = await eventService.untrackEvent(eventId);
         if (response.status) {
           setIsTracked(false);
-          Alert.alert('Thành công', 'Đã hủy theo dõi sự kiện');
+          // Cancel the scheduled notification if it exists
+          if (notificationId) {
+            await notificationService.cancelNotification(notificationId);
+            // Remove from AsyncStorage
+            await AsyncStorage.removeItem(`event_notification_${eventId}`);
+            setNotificationId(null);
+          }
+          Alert.alert("Thành công", "Đã hủy theo dõi sự kiện");
         }
       } else {
         const response = await eventService.trackEvent(eventId);
         if (response.status) {
           setIsTracked(true);
-          Alert.alert('Thành công', 'Đã theo dõi sự kiện');
+          // Schedule notification 1 hour before the event
+          if (event?.startTime) {
+            const eventTime = new Date(event.startTime);
+            const notificationTime = new Date(
+              eventTime.getTime() - 60 * 60 * 1000
+            ); // 1 hour before
+
+            // Only schedule if the event hasn't started yet
+            if (notificationTime > new Date()) {
+              const notification =
+                await Notifications.scheduleNotificationAsync({
+                  content: {
+                    title: "Nhắc nhở sự kiện",
+                    body: `Sự kiện "${event.title}" sẽ bắt đầu trong 1 giờ!`,
+                    sound: true,
+                    priority: Notifications.AndroidNotificationPriority.HIGH,
+                    data: { eventId: eventId }, // Store eventId in notification data
+                  },
+                  trigger: {
+                    date: notificationTime,
+                    channelId: "event-reminders",
+                  },
+                });
+              // Save notification ID to AsyncStorage
+              await AsyncStorage.setItem(
+                `event_notification_${eventId}`,
+                notification
+              );
+              setNotificationId(notification);
+            }
+          }
+          Alert.alert("Thành công", "Đã theo dõi sự kiện");
         }
       }
     } catch (err: any) {
-      console.error('Error in handleTrack:', err);
-      Alert.alert('Lỗi', err.response?.data?.message || 'Có lỗi xảy ra');
+      console.error("Error in handleTrack:", err);
+      Alert.alert("Lỗi", err.response?.data?.message || "Có lỗi xảy ra");
     }
   };
 
@@ -160,19 +240,21 @@ export default function EventDetailScreen() {
         const response = await eventService.unfollowUser(event.createdBy.id);
         if (response.status) {
           setIsFollowing(false);
-          Alert.alert('Thành công', 'Đã hủy theo dõi người dùng');
+          Alert.alert("Thành công", "Đã hủy theo dõi người dùng");
         }
       } else {
         const response = await eventService.followUser(event.createdBy.id);
         if (response.status) {
-          const followResponse = await eventService.checkFollow(event.createdBy.id);
+          const followResponse = await eventService.checkFollow(
+            event.createdBy.id
+          );
           setIsFollowing(followResponse.data.isFollow);
-          Alert.alert('Thành công', 'Đã theo dõi người dùng');
+          Alert.alert("Thành công", "Đã theo dõi người dùng");
         }
       }
     } catch (err: any) {
-      console.error('Error in handleFollow:', err);
-      Alert.alert('Lỗi', err.response?.data?.message || 'Có lỗi xảy ra');
+      console.error("Error in handleFollow:", err);
+      Alert.alert("Lỗi", err.response?.data?.message || "Có lỗi xảy ra");
     }
   };
 
@@ -195,9 +277,13 @@ export default function EventDetailScreen() {
     return () => clearInterval(interval);
   }, [currentIndex, event?.images]);
 
-  const renderImageItem = ({ item }: { item: { id: string; link: string } }) => (
+  const renderImageItem = ({
+    item,
+  }: {
+    item: { id: string; link: string };
+  }) => (
     <Image
-      source={{ uri: item.link }}
+      source={{ uri: item.link || 'https://cellphones.com.vn/sforum/wp-content/uploads/2023/10/avatar-trang-2.jpg' }}
       style={[styles.bannerImage, { width: screenWidth }]}
       resizeMode="cover"
     />
@@ -267,7 +353,9 @@ export default function EventDetailScreen() {
     // Format thời gian
     const hours = vietnamTime.getHours();
     const minutes = vietnamTime.getMinutes();
-    const time = `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
+    const time = `${hours.toString().padStart(2, "0")}:${minutes
+      .toString()
+      .padStart(2, "0")}`;
 
     return {
       date: formattedDate,
@@ -308,8 +396,8 @@ export default function EventDetailScreen() {
             <Ionicons name="arrow-back" size={24} color="#fff" />
           </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={styles.iconButton} 
+          <TouchableOpacity
+            style={styles.iconButton}
             onPress={() => {
               handleFavorite();
             }}
@@ -365,13 +453,15 @@ export default function EventDetailScreen() {
           </View>
           <View>
             <Text style={styles.infoTitle}>Số lượng tham gia</Text>
-            <Text style={styles.infoSub}>Tối đa {event.participantNumber} người</Text>
+            <Text style={styles.infoSub}>
+              Tối đa {event.participantNumber} người
+            </Text>
           </View>
         </View>
 
         <View style={styles.infoRow}>
           <Image
-            source={{ uri: event.createdBy.avatar }}
+            source={{ uri: event.createdBy.avatar || 'https://via.placeholder.com/40' }}
             style={styles.organizerAvatar}
           />
           <View style={{ flex: 1 }}>
@@ -535,7 +625,7 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   followingButtonText: {
-    color: '#fff',
+    color: "#fff",
   },
   sectionTitle: {
     fontWeight: "600",

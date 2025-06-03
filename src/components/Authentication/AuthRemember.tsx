@@ -1,19 +1,20 @@
-import React, { useState } from "react";
+import React from "react";
 import { View, Text, Switch, StyleSheet } from "react-native";
 
-const RememberPassword = () => {
-  const [isEnabled, setIsEnabled] = useState(false);
+interface RememberPasswordProps {
+  value: boolean;
+  onValueChange: (value: boolean) => void;
+}
 
-  const toggleSwitch = () => setIsEnabled((prev) => !prev);
-
+const RememberPassword = ({ value, onValueChange }: RememberPasswordProps) => {
   return (
     <View style={styles.container}>
       <Switch
         trackColor={{ false: "#ccc", true: "#4C6EF5" }} // màu nền
         thumbColor={"#fff"} // màu nút tròn
         ios_backgroundColor="#ccc"
-        onValueChange={toggleSwitch}
-        value={isEnabled}
+        onValueChange={onValueChange}
+        value={value}
       />
       <Text style={styles.label}>Lưu mật khẩu</Text>
     </View>

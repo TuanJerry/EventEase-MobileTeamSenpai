@@ -3,6 +3,7 @@ import { EventListResponse, FavoriteEventListResponse, EventDetailResponse } fro
 import { Event } from '../types/event';
 import { TrackedEventsResponse } from '../types/event';
 import { FavoriteEvent } from '../types/event';
+import { NearbyEventListResponse } from '../types/nearbyEvent';
 
 interface ParticipateResponse {
   status: boolean;
@@ -359,7 +360,7 @@ export const eventService = {
     try {
       console.log('=== Check Follow API ===');
       console.log('User ID:', userId);
-      const response = await axiosInstance.get(`/follower/${userId}`);
+      const response = await axiosInstance.get(`/follower/isFavourite/${userId}`);
       console.log('Response:', response.data);
       return response.data;
     } catch (error) {
@@ -406,6 +407,62 @@ export const eventService = {
       });
       return response.data;
     } catch (error) {
+      throw error;
+    }
+  },
+
+  searchEventsByLocation: async (
+    location: string,
+    radius: number = 5,
+    page: number = 1,
+    limit: number = 20
+  ): Promise<NearbyEventListResponse> => {
+    try {
+      console.log('Searching events with location:', location);
+      
+      // Validate and adjust parameters
+      const validRadius = Math.min(Math.max(Math.floor(radius), 1), 100);
+      const validPage = Math.max(Math.floor(page), 1);
+      const validLimit = Math.min(Math.max(Math.floor(limit), 1), 100);
+      
+      const params = new URLSearchParams({
+        location: location,
+        radius: validRadius.toString(),
+        page: validPage.toString(),
+        limit: validLimit.toString()
+      });
+      
+      const url = `/events/search/location?${params.toString()}`;
+      console.log('API URL:', url);
+      
+      const response = await axiosInstance.get(url);
+      console.log('API Response:', response.data);
+      return response.data;
+    } catch (error: any) {
+      console.error('Error fetching events:', error.response?.data || error.message);
+      throw error;
+    }
+  },
+
+  getCurrentMonthEvents: async (page: number = 1, limit: number = 10): Promise<NearbyEventListResponse> => {
+    try {
+      console.log('=== Get Current Month Events API ===');
+      console.log('Page:', page, 'Limit:', limit);
+      const response = await axiosInstance.get(`/events/list/current-month?page=${page}&limit=${limit}`);
+      console.log('Response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching current month events:', error);
+      throw error;
+    }
+  },
+
+  getUpcomingEvents: async (page: number = 1, limit: number = 20) => {
+    try {
+      const response = await axiosInstance.get(`/events/list/upcoming?page=${page}&limit=${limit}`);
+      return response.data;
+    } catch (error) {
+      console.error('Get upcoming events error:', error);
       throw error;
     }
   }
