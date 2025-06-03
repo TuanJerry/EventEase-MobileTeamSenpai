@@ -9,25 +9,41 @@ const ChangePhoneScreen = () => {
   const [newPhone, setNewPhone] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const validatePhone = (phone: string) => {
+    // Kiểm tra số điện thoại Việt Nam
+    const phoneRegex = /^(0[3|5|7|8|9])+([0-9]{8})$/;
+    return phoneRegex.test(phone);
+  };
+
   const handleChangePhone = async () => {
     if (!newPhone) {
       Alert.alert('Lỗi', 'Vui lòng nhập số điện thoại mới');
       return;
     }
 
+    if (!validatePhone(newPhone)) {
+      Alert.alert('Lỗi', 'Số điện thoại không hợp lệ. Vui lòng nhập số điện thoại Việt Nam');
+      return;
+    }
+
     try {
       setLoading(true);
-      await userService.updatePhone(newPhone);
-      Alert.alert(
-        'Thành công',
-        'Số điện thoại đã được cập nhật',
-        [
-          {
-            text: 'OK',
-            onPress: () => navigation.goBack()
-          }
-        ]
-      );
+      const response = await userService.updatePhone(newPhone);
+      
+      if (response.data.status) {
+        Alert.alert(
+          'Thành công',
+          'Số điện thoại đã được cập nhật',
+          [
+            {
+              text: 'OK',
+              onPress: () => navigation.goBack()
+            }
+          ]
+        );
+      } else {
+        Alert.alert('Lỗi', response.data.message || 'Không thể cập nhật số điện thoại');
+      }
     } catch (error: any) {
       Alert.alert('Lỗi', error.response?.data?.message || 'Không thể cập nhật số điện thoại');
     } finally {
@@ -60,8 +76,10 @@ const ChangePhoneScreen = () => {
               keyboardType="phone-pad"
               value={newPhone}
               onChangeText={setNewPhone}
+              maxLength={10}
             />
           </View>
+          <Text style={styles.hint}>Ví dụ: 0987654321</Text>
         </View>
 
         <TouchableOpacity
@@ -126,6 +144,11 @@ const styles = StyleSheet.create({
     height: 50,
     fontSize: 16,
     color: '#333',
+  },
+  hint: {
+    fontSize: 12,
+    color: '#666',
+    marginTop: 4,
   },
   submitButton: {
     backgroundColor: '#4B7BE5',

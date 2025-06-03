@@ -12,15 +12,15 @@ export const userService = {
   },
 
   updatePhone(phone: string): Promise<any> {
-    return axiosInstance.put('/uses/phone', { phone });
+    return axiosInstance.put('/users/phone', { phone });
   },
 
   updateProfile(data: {
     firstName: string;
     lastName: string;
-    dateOfBirth: Date;
+    dateOfBirth: string;
+    address: string;
     email: string;
-    location: string;
   }): Promise<any> {
     return axiosInstance.put('/users/profile', data);
   },

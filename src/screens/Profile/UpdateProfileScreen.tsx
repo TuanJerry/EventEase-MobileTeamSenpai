@@ -23,8 +23,8 @@ const UpdateProfileScreen = () => {
   const fetchUserProfile = async () => {
     try {
       const profile = await userService.getMyProfile();
-      setFirstName(profile.lastName);
-      setLastName(profile.firstName);
+      setFirstName(profile.firstName);
+      setLastName(profile.lastName);
       setDateOfBirth(new Date(profile.dateOfBirth));
       setEmail(profile.email);
       setLocation(profile.location || '');
@@ -44,9 +44,9 @@ const UpdateProfileScreen = () => {
       await userService.updateProfile({
         firstName,
         lastName,
-        dateOfBirth,
-        email,
-        location
+        dateOfBirth: format(dateOfBirth, 'yyyy-MM-dd'),
+        address: location,
+        email
       });
       Alert.alert(
         'Thành công',

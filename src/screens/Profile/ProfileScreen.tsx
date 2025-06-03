@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { User, BookText, Bookmark, CalendarDays, Inbox, LogOut } from 'lucide-react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { AuthContext } from '../../navigation/RootNavigator';
 import { authService } from '../../services/authService';
 import { userService } from '../../services/userService';
@@ -20,6 +20,7 @@ export default function ProfileScreen() {
 
   const fetchUserProfile = async () => {
     try {
+      setLoading(true);
       const userData = await userService.getMyProfile();
       setProfile(userData);
     } catch (error: any) {
@@ -38,9 +39,7 @@ export default function ProfileScreen() {
             }
           ]
         );
-      } else {
-        Alert.alert("Lỗi", "Không thể lấy thông tin người dùng");
-      }
+      } 
     } finally {
       setLoading(false);
     }
@@ -63,6 +62,14 @@ export default function ProfileScreen() {
     fetchFollowCount();
   }, []);
 
+  // Reload profile mỗi khi màn hình được focus
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchUserProfile();
+      fetchFollowCount();
+    }, [])
+  );
+
   const handleLogout = async () => {
     try {
       await authService.logout();
@@ -73,7 +80,7 @@ export default function ProfileScreen() {
     }
   };
 
-  if (loading) {
+  if (loading || !profile) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#4B7BE5" />
