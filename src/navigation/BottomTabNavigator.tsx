@@ -5,7 +5,7 @@ import { Home, Users, MapPin, User, Plus } from "lucide-react-native";
 
 // Screens
 import HomeStackNavigator from "./HomeStackNavigator";
-import CalendarScreen from "../screens/Friends/FriendSuggestionsScreen";
+import FriendScreen from "../screens/Friends/FriendScreen";
 import LocationScreen from "../screens/LocationScreen/LocationScreen";
 import ProfileStackNavigator from "./ProfileStackNavigator";
 import CreateEventScreen from "../screens/CreateAndUpdateEvent/CreateEventScreen";
@@ -53,7 +53,7 @@ export default function BottomTabNavigator() {
       />
       <Tab.Screen
         name="Friends"
-        component={CalendarScreen}
+        component={FriendScreen}
         options={{
           headerShown: false,
           tabBarIcon: ({ focused }) => (

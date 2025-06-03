@@ -1,39 +1,45 @@
-import { View, Text, Image, Pressable } from "react-native";
+import { View, Text, Image, TouchableOpacity } from "react-native";
 import React from "react";
 import { getTimeAgo } from "../../utils/getTimeAgo";
-import Icon from "react-native-vector-icons/FontAwesome6";
 
-export interface FriendSuggestionProps {
+export type FriendSuggestionProps = {
   id: string;
   avatar: string;
   name: string;
   mutualFriend: string;
   createdAt: string;
-}
+};
 
-interface Props {
+type Props = {
   item: FriendSuggestionProps;
-  onFollow: () => void;
-}
+};
 
-const FriendSuggestionItem: React.FC<Props> = ({ item, onFollow }) => {
+const FriendSuggestionItem = ({ item }: Props) => {
+
   return (
-    <View className="flex-row items-center p-4 border-b border-gray-200">
-      <Image source={{ uri: item.avatar }} className="w-12 h-12 rounded-full" />
-      <View className="flex-1 ml-3">
-        <Text className="font-semibold text-base">{item.name}</Text>
-        {item.mutualFriend && (
-          <Text className="text-gray-500 text-sm">
-            Bạn chung: {item.mutualFriend}
-          </Text>
-        )}
+    <View className="flex-row items-start px-4 py-3 bg-white">
+      <Image
+        source={{ uri: item.avatar }}
+        className="w-12 h-12 rounded-full mr-4"
+        resizeMode="cover"
+      />
+      <View className="flex-1">
+        <Text className="text-base">
+          <Text className="font-bold">{item.name}</Text> bạn bè chung với
+        </Text>
+        <Text className="text-base text-black">{item.mutualFriend}</Text>
+        <View className="flex-row mt-3 gap-4">
+          <TouchableOpacity className="border border-gray-300 rounded-lg px-7 py-2">
+            <Text className="text-gray-500 font-semibold">Xóa</Text>
+          </TouchableOpacity>
+          <TouchableOpacity className="bg-[#5669ff] rounded-lg px-6 py-2">
+            <Text className="text-white font-semibold">Theo dõi</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-      <Pressable
-        onPress={onFollow}
-        className="bg-blue-500 px-4 py-2 rounded-full"
-      >
-        <Text className="text-white font-semibold">Theo dõi</Text>
-      </Pressable>
+      <Text className="text-sm text-gray-400">
+        {getTimeAgo(item.createdAt)}
+      </Text>
     </View>
   );
 };
