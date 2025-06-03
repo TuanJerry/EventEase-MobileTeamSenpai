@@ -1,17 +1,22 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { User, BookText, Bookmark, CalendarDays, Inbox, LogOut } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { AuthContext } from '../../navigation/RootNavigator';
 import { authService } from '../../services/authService';
 import { userService } from '../../services/userService';
 import { UserProfile } from '../../types/user';
+import { followerService } from "../../services/followerService";
 
 export default function ProfileScreen() {
   const navigation = useNavigation<any>();
   const { setIsLoggedIn } = useContext(AuthContext);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [followCount, setFollowCount] = useState({
+    followingCount: 0,
+    followersCount: 0
+  });
 
   const fetchUserProfile = async () => {
     try {
@@ -41,8 +46,21 @@ export default function ProfileScreen() {
     }
   };
 
+  const fetchFollowCount = async () => {
+    try {
+      setLoading(true);
+      const response = await followerService.getFollowCount();
+      setFollowCount(response.data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchUserProfile();
+    fetchFollowCount();
   }, []);
 
   const handleLogout = async () => {
@@ -54,6 +72,14 @@ export default function ProfileScreen() {
       Alert.alert("Lỗi", "Không thể đăng xuất, vui lòng thử lại");
     }
   };
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#4B7BE5" />
+      </View>
+    );
+  }
 
   return (
     <ScrollView contentContainerStyle={{flexGrow: 1, backgroundColor: '#fff', padding: 20,}}>
@@ -71,19 +97,23 @@ export default function ProfileScreen() {
         </View>
         <View style={styles.followRow}>
           <View style={styles.followBox}>
-            <Text style={styles.followNumber}>350</Text>
+            <Text style={styles.followNumber}>{followCount.followingCount}</Text>
             <Text style={styles.followLabel}>Theo dõi</Text>
           </View>
           <View style={styles.divider} />
           <View style={styles.followBox}>
-            <Text style={styles.followNumber}>346</Text>
+            <Text style={styles.followNumber}>{followCount.followersCount}</Text>
             <Text style={styles.followLabel}>Bạn bè</Text>
           </View>
         </View>
       </View>
 
       {/* Menu items */}
-      <MenuItem icon={<User size={20} color="#000" />} label="Thông tin cá nhân" />
+      <MenuItem 
+        icon={<User size={20} color="#000" />} 
+        label="Thông tin cá nhân" 
+        onPress={() => navigation.navigate('PersonalInfo')}
+      />
       <MenuItem
         icon={<BookText size={20} color="#000" />}
         label="Quản lý bài đăng"
@@ -127,6 +157,11 @@ function MenuItem({ icon, label, onPress }: { readonly icon: React.ReactNode; re
 }
 
 const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   container: {
     backgroundColor: '#fff',
   },

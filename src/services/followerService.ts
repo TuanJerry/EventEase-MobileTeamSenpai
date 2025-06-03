@@ -40,6 +40,17 @@ interface FollowResponse {
   };
 }
 
+interface FollowCountResponse {
+  status: boolean;
+  code: number;
+  timestamp: string;
+  message: string;
+  data: {
+    followingCount: number;
+    followersCount: number;
+  };
+}
+
 export const followerService = {
   getSuggestedFollowers: async (page: number = 1): Promise<SuggestedFollowersResponse> => {
     try {
@@ -66,6 +77,15 @@ export const followerService = {
   unfollowUser: async (userId: string): Promise<FollowResponse> => {
     try {
       const response = await axiosInstance.patch<FollowResponse>(`/follower/${userId}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  getFollowCount: async (): Promise<FollowCountResponse> => {
+    try {
+      const response = await axiosInstance.get<FollowCountResponse>("/follower/count");
       return response.data;
     } catch (error) {
       throw error;

@@ -8,7 +8,11 @@ import TrackedEventsScreen from '../screens/Profile/TrackedEventsScreen';
 import SignInScreen from '../screens/SignIn-SignOut/SignIn';
 import EventDetailScreen from '../screens/EventDetails/EventDetailScreen';
 import UpdateEventScreen from '../screens/CreateAndUpdateEvent/UpdateEventScreen';
-
+import PersonalInfoScreen from '../screens/Profile/PersonalInfoScreen';
+import ChangePhoneScreen from '../screens/Profile/ChangePhoneScreen';
+import ChangePasswordScreen from '../screens/Profile/ChangePasswordScreen';
+import UpdateProfileScreen from '../screens/Profile/UpdateProfileScreen';
+import ChangeAvatarScreen from '../screens/Profile/ChangeAvatarScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -23,6 +27,11 @@ export default function ProfileStackNavigator() {
       <Stack.Screen name="SignIn" component={SignInScreen} />
       <Stack.Screen name="EventDetail" component={EventDetailScreen} />
       <Stack.Screen name="UpdateEvent" component={UpdateEventScreen} />
+      <Stack.Screen name="PersonalInfo" component={PersonalInfoScreen} />
+      <Stack.Screen name="ChangePhone" component={ChangePhoneScreen} />
+      <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} />
+      <Stack.Screen name="UpdateProfile" component={UpdateProfileScreen} />
+      <Stack.Screen name="ChangeAvatar" component={ChangeAvatarScreen} />
     </Stack.Navigator>
   );
 }
