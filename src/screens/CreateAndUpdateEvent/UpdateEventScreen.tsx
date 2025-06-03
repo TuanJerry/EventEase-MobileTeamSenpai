@@ -12,6 +12,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { eventService } from '../../services/eventService';
 import { createEventFormData } from '../../utils/createFormData';
+import * as Sentry from "@sentry/react-native"
 
 type RootStackParamList = {
   EventDetail: { eventId: string };
@@ -46,6 +47,7 @@ export default function UpdateEventScreen() {
   const allTags = ['Âm nhạc', 'Thể thao', 'Hội thảo', 'Giáo dục'];
 
   useEffect(() => {
+      Sentry.captureMessage("👀 User used UpdateEventScreen");
       fetchEventDetail();
   }, [eventId]);
   
@@ -61,6 +63,13 @@ export default function UpdateEventScreen() {
         capacity: event.participantNumber || 0,
         tags: event.hashtags.map((tag) => tag.name) || [],
       };
+      Sentry.withScope((scope) => {
+          scope.setTag("event", "UploadEventScreen");
+          scope.setContext("info-check", {
+            startTime: loadedForm.startTime,
+            endTime: loadedForm.endTime
+          });
+      });
       setForm(loadedForm);
       setOriginalForm(loadedForm);
     }
@@ -74,6 +83,11 @@ export default function UpdateEventScreen() {
         setEvent(response.data);
         setError(null);
       } catch (err) {
+         Sentry.withScope((scope) => {
+            scope.setTag("event", "UploadEventScreen");
+            scope.setContext("images", { message: "Images are too large or Timeout when upload images" });
+            Sentry.captureException(error);
+         });
         setError("Không thể tải thông tin sự kiện");
         console.error("Error fetching event detail:", err);
         navigation.goBack();

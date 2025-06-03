@@ -7,6 +7,7 @@ import Button from "../../components/Authentication/AuthButton";
 import Logo from "../../../assets/Logo_2.svg";
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { authService } from "../../services/authService";
+import * as Sentry from "@sentry/react-native";
 
 type ForgotScreenProps = {
   navigation: NativeStackNavigationProp<any>;
@@ -46,6 +47,8 @@ export default function ForgotPasswordScreen({ navigation }: ForgotScreenProps) 
       } catch (error: any) {
         const errorMessage = error.message || "Có lỗi xảy ra";
         setError(errorMessage);
+        Sentry.setContext("forgot-password", { email });
+        Sentry.captureException(error);
         Alert.alert("Lỗi", errorMessage);
       } finally {
         setLoading(false);

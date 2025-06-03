@@ -7,6 +7,7 @@ import { authService } from '../../services/authService';
 import { userService } from '../../services/userService';
 import { UserProfile } from '../../types/user';
 import { followerService } from "../../services/followerService";
+import * as Sentry from "@sentry/react-native";
 
 export default function ProfileScreen() {
   const navigation = useNavigation<any>();
@@ -40,6 +41,11 @@ export default function ProfileScreen() {
           ]
         );
       } 
+      Sentry.withScope((scope) => {
+        scope.setTag("user", "ProfileScreen");
+        scope.setContext("api", { endpoint: "/users/my-info", method: "GET" });
+        Sentry.captureException(error);
+      });
     } finally {
       setLoading(false);
     }

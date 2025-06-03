@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome6';
 import { userService } from '../../services/userService';
 import * as ImagePicker from 'expo-image-picker';
+import * as Sentry from '@sentry/react-native';
 
 const ChangeAvatarScreen = () => {
   const navigation = useNavigation();
@@ -53,6 +54,11 @@ const ChangeAvatarScreen = () => {
         ]
       );
     } catch (error: any) {
+      Sentry.withScope((scope) => {
+        scope.setTag("user", "ChangeAvatarScreen");
+        scope.setContext("api", { endpoint: "/users/update-avatar", method: "PATCH" });
+        Sentry.captureException(error);
+      });
       Alert.alert('Lỗi', error.response?.data?.message || 'Không thể cập nhật ảnh đại diện');
     } finally {
       setLoading(false);

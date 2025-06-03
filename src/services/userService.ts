@@ -37,7 +37,8 @@ export const userService = {
     });
   },
 
-  updatePassword(oldPassword: string, newPassword: string, confirmPassword: string): Promise<any> {
+  updatePassword(oldPassword: string, newPassword: string): Promise<any> {
+    const confirmPassword = newPassword; // Assuming confirmPassword is the same as newPassword
     return axiosInstance.put('/users/update-password', {
       oldPassword,
       newPassword,

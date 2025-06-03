@@ -10,6 +10,7 @@ import { useWindowDimensions } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Sentry from "@sentry/react-native";
 
 const onboardingData: OnboardingData[] = [
   {
@@ -43,6 +44,10 @@ const OnboardingScreen = () => {
   const fadeAnimDescription = useRef(new Animated.Value(0)).current;
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
+  useEffect(() => {
+    Sentry.captureMessage("👀 User viewed Onboarding");
+  }, []);
+  
   const handleScroll = (event: any) => {
     const index = Math.round(event.nativeEvent.contentOffset.x / width);
     setCurrentIndex(index);

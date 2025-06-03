@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   ScrollView,
   TextInput,
@@ -17,6 +17,7 @@ import LocationInput from "../../components/EventForm/LocationInput";
 import EventFormHeader from "../../components/EventForm/EventFormHeader";
 import { styles } from "../../components/EventForm/EventForm.style";
 import { createEventFormData } from "../../utils/createFormData";
+import * as Sentry from "@sentry/react-native";
 
 type CreateEventScreenProps = {
   navigation: NativeStackNavigationProp<any>;
@@ -41,6 +42,10 @@ export default function CreateEventScreen({
   const [showEndPicker, setShowEndPicker] = useState(false);
   const [searchText, setSearchText] = useState("");
   const allTags = ["Âm nhạc", "Thể thao", "Hội thảo", "Giáo dục"];
+
+  useEffect(() => {
+    Sentry.captureMessage("👀 User used CreateEventScreen");
+  }, []);
 
   const handleCreateEvent = async () => {
     try {
@@ -107,6 +112,11 @@ export default function CreateEventScreen({
         alert(`Lỗi khi khởi tạo sự kiện, ${response.code}`);
       }
     } catch (error) {
+      Sentry.withScope((scope) => {
+        scope.setTag("event", "CreateEventScreen");
+        scope.setContext("images", { message: "Images are too large or Timeout when upload images" });
+        Sentry.captureException(error);
+      });
       alert(
         "Lỗi khi tạo sự kiện. Vui lòng thử lại hoặc báo cáo với team phát triển phần mềm."
       );
