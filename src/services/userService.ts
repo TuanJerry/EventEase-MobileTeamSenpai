@@ -1,4 +1,5 @@
 import axiosInstance from './axios';
+import { resizeAvatar } from '../utils/createFormData';
 import { UserProfile, UserProfileResponse } from '../types/user';
 
 export const userService = {
@@ -12,30 +13,35 @@ export const userService = {
   },
 
   updatePhone(phone: string): Promise<any> {
-    return axiosInstance.put('/uses/phone', { phone });
+    return axiosInstance.put('/users/phone', { phone });
   },
 
   updateProfile(data: {
     firstName: string;
     lastName: string;
-    dateOfBirth: Date;
+    dateOfBirth: string;
+    address: string;
     email: string;
-    location: string;
   }): Promise<any> {
     return axiosInstance.put('/users/profile', data);
   },
 
-  updateAvatar(avatarUri: string): Promise<any> {
+  async updateAvatar(avatarUri: string): Promise<any> {
     const formData = new FormData();
-    formData.append('avatar', {
-      uri: avatarUri,
-      type: 'image/jpeg',
-      name: 'avatar.jpg',
-    });
-    return axiosInstance.put('/users/avatar', formData, {
+    const resizedAvatar = await resizeAvatar(avatarUri);
+    formData.append('avatar', resizedAvatar as any);
+    return axiosInstance.put('/users/update-avatar', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
+    });
+  },
+
+  updatePassword(oldPassword: string, newPassword: string, confirmPassword: string): Promise<any> {
+    return axiosInstance.put('/users/update-password', {
+      oldPassword,
+      newPassword,
+      confirmPassword,
     });
   },
 }; 
