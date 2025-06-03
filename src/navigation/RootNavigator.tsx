@@ -14,7 +14,7 @@ export const AuthContext = createContext({
 });
 
 export default function RootNavigator() {
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const Stack = createStackNavigator();
   const [hasSeenOnboarding, setHasSeenOnboarding] = useState<boolean | null>(
     null
@@ -36,26 +36,20 @@ export default function RootNavigator() {
 
   return (
     <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn }}>
-      <Stack.Navigator
-        screenOptions={{ headerShown: false }}
-        initialRouteName={
-          isLoggedIn ? "MainTabs" : hasSeenOnboarding ? "Login" : "Onboarding"
-        }
-      >
-        {!isLoggedIn && (
-          <>
+      {isLoggedIn ? (
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="MainTabs" component={BottomTabNavigator} />
+          <Stack.Screen name="Friend" component={FriendScreen} />
+          <Stack.Screen name="Notification" component={NotificationScreen} />
+        </Stack.Navigator>
+      ) : (
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          {!hasSeenOnboarding && (
             <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-            <Stack.Screen name="Login" component={AuthNavigator} />
-          </>
-        )}
-        {isLoggedIn && (
-          <>
-            <Stack.Screen name="MainTabs" component={BottomTabNavigator} />
-            <Stack.Screen name="Friend" component={FriendScreen} />
-            <Stack.Screen name="Notification" component={NotificationScreen} />
-          </>
-        )}
-      </Stack.Navigator>
+          )}
+          <Stack.Screen name="Login" component={AuthNavigator} />
+        </Stack.Navigator>
+      )}
     </AuthContext.Provider>
   );
 }
