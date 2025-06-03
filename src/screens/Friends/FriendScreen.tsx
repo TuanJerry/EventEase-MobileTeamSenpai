@@ -1,158 +1,91 @@
-import { View, Text, Pressable, FlatList } from "react-native";
-import React from "react";
+import { View, Text, Pressable, FlatList, ActivityIndicator } from "react-native";
+import React, { useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import Icon from "react-native-vector-icons/FontAwesome6";
 import FriendSuggestionItem, {
   FriendSuggestionProps,
 } from "../../components/FriendSuggestionItem/FriendSuggestionItem";
+import { followerService } from "../../services/followerService";
 
-const friendSuggestions: FriendSuggestionProps[] = [
-  {
-    id: "1",
-    avatar: "https://randomuser.me/api/portraits/men/1.jpg",
-    name: "Thiện An",
-    mutualFriend: "Nguyễn Bảo Khánh",
-    createdAt: new Date(Date.now() - 30 * 1000).toISOString(), // dùng để test
-  },
-  {
-    id: "2",
-    avatar: "https://randomuser.me/api/portraits/women/2.jpg",
-    name: "Minh Trang",
-    mutualFriend: "Trần Hữu Đức",
-    createdAt: "2025-06-02T08:59:55.000Z",
-  },
-  {
-    id: "3",
-    avatar: "https://randomuser.me/api/portraits/men/3.jpg",
-    name: "Quốc Huy",
-    mutualFriend: "Lê Thảo My",
-    createdAt: "2025-06-02T08:59:50.000Z",
-  },
-  {
-    id: "4",
-    avatar: "https://randomuser.me/api/portraits/women/4.jpg",
-    name: "Ngọc Mai",
-    mutualFriend: "Vũ Hoàng Dương",
-    createdAt: "2025-06-02T08:59:45.000Z",
-  },
-  {
-    id: "5",
-    avatar: "https://randomuser.me/api/portraits/men/5.jpg",
-    name: "Trọng Nghĩa",
-    mutualFriend: "Phạm Thuỳ Dương",
-    createdAt: "2025-06-02T08:59:40.000Z",
-  },
-  {
-    id: "6",
-    avatar: "https://randomuser.me/api/portraits/women/6.jpg",
-    name: "Thảo Vy",
-    mutualFriend: "Ngô Thanh Hằng",
-    createdAt: "2025-06-02T08:59:35.000Z",
-  },
-  {
-    id: "7",
-    avatar: "https://randomuser.me/api/portraits/men/7.jpg",
-    name: "Hoàng Long",
-    mutualFriend: "Đặng Quốc Bảo",
-    createdAt: "2025-06-02T08:59:30.000Z",
-  },
-  {
-    id: "8",
-    avatar: "https://randomuser.me/api/portraits/women/8.jpg",
-    name: "Phương Linh",
-    mutualFriend: "Nguyễn Đan Thư",
-    createdAt: "2025-06-02T08:59:25.000Z",
-  },
-  {
-    id: "9",
-    avatar: "https://randomuser.me/api/portraits/men/9.jpg",
-    name: "Văn Lâm",
-    mutualFriend: "Trịnh Anh Tú",
-    createdAt: "2025-06-02T08:59:20.000Z",
-  },
-  {
-    id: "10",
-    avatar: "https://randomuser.me/api/portraits/women/10.jpg",
-    name: "Bảo Ngọc",
-    mutualFriend: "Phạm Anh Dũng",
-    createdAt: "2025-06-02T08:59:15.000Z",
-  },
-  {
-    id: "11",
-    avatar: "https://randomuser.me/api/portraits/men/11.jpg",
-    name: "Hữu Tài",
-    mutualFriend: "Nguyễn Thị Lệ",
-    createdAt: "2025-06-02T08:59:00.000Z", // 1 phút trước
-  },
-  {
-    id: "12",
-    avatar: "https://randomuser.me/api/portraits/women/12.jpg",
-    name: "Mai Hương",
-    mutualFriend: "Lê Gia Huy",
-    createdAt: "2025-06-02T08:59:00.000Z",
-  },
-  {
-    id: "13",
-    avatar: "https://randomuser.me/api/portraits/men/13.jpg",
-    name: "Công Danh",
-    mutualFriend: "Nguyễn Trà My",
-    createdAt: "2025-06-02T08:59:00.000Z",
-  },
-  {
-    id: "14",
-    avatar: "https://randomuser.me/api/portraits/women/14.jpg",
-    name: "Thị Hằng",
-    mutualFriend: "Trần Ngọc Mai",
-    createdAt: "2025-06-02T08:58:00.000Z", // 2 phút trước
-  },
-  {
-    id: "15",
-    avatar: "https://randomuser.me/api/portraits/men/15.jpg",
-    name: "Thanh Phong",
-    mutualFriend: "Bùi Văn Nam",
-    createdAt: "2025-06-02T08:58:00.000Z",
-  },
-  {
-    id: "16",
-    avatar: "https://randomuser.me/api/portraits/women/16.jpg",
-    name: "Yến Nhi",
-    mutualFriend: "Đặng Thuý Quỳnh",
-    createdAt: "2025-06-02T08:58:00.000Z",
-  },
-  {
-    id: "17",
-    avatar: "https://randomuser.me/api/portraits/men/17.jpg",
-    name: "Minh Nhật",
-    mutualFriend: "Lê Hồng Anh",
-    createdAt: "2025-06-02T08:57:00.000Z", // 3 phút trước
-  },
-  {
-    id: "18",
-    avatar: "https://randomuser.me/api/portraits/women/18.jpg",
-    name: "Diệu Anh",
-    mutualFriend: "Nguyễn Gia Linh",
-    createdAt: "2025-06-02T08:57:00.000Z",
-  },
-  {
-    id: "19",
-    avatar: "https://randomuser.me/api/portraits/men/19.jpg",
-    name: "Hải Đăng",
-    mutualFriend: "Phạm Văn Phú",
-    createdAt: "2025-06-02T08:57:00.000Z",
-  },
-  {
-    id: "20",
-    avatar: "https://randomuser.me/api/portraits/women/20.jpg",
-    name: "Linh Chi",
-    mutualFriend: "Nguyễn Thị Yến",
-    createdAt: "2025-06-02T08:56:00.000Z", // 4 phút trước
-  },
-];
-
-// const friendSuggestions: FriendSuggestionProps[] = [];
 const FriendScreen = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+  const [suggestions, setSuggestions] = useState<FriendSuggestionProps[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  const handleRemove = (id: string) => {
+    setSuggestions(prev => prev.filter(item => item.id !== id));
+  };
+
+  const fetchSuggestedFollowers = async (pageNum: number = 1) => {
+    try {
+      if (pageNum === 1) {
+        setLoading(true);
+      } else {
+        setLoadingMore(true);
+      }
+
+      const response = await followerService.getSuggestedFollowers(pageNum);
+      const formattedSuggestions = response.data.map((item) => ({
+        id: item.id,
+        avatar: item.avatar || "https://randomuser.me/api/portraits/men/1.jpg",
+        name: item.name,
+        mutualFriend: item.mutualFriend || "Không có bạn chung",
+        createdAt: item.createdAt,
+      }));
+
+      if (pageNum === 1) {
+        setSuggestions(formattedSuggestions);
+      } else {
+        setSuggestions(prev => {
+          const existingIds = new Set(prev.map(item => item.id));
+          const newItems = formattedSuggestions.filter(item => !existingIds.has(item.id));
+          return [...prev, ...newItems];
+        });
+      }
+
+      // Kiểm tra nếu số lượng item ít hơn 10 thì không còn dữ liệu để load
+      setHasMore(formattedSuggestions.length === 10);
+    } catch (err) {
+      setError("Không thể tải danh sách gợi ý bạn bè");
+      console.error(err);
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+    }
+  };
+
+  const handleLoadMore = () => {
+    if (!loadingMore && hasMore) {
+      const nextPage = page + 1;
+      setPage(nextPage);
+      fetchSuggestedFollowers(nextPage);
+    }
+  };
+
+  useEffect(() => {
+    fetchSuggestedFollowers();
+  }, []);
+
+  if (loading) {
+    return (
+      <View className="flex-1 justify-center items-center">
+        <ActivityIndicator size="large" color="#4B7BE5" />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View className="flex-1 justify-center items-center">
+        <Text className="text-red-500">{error}</Text>
+      </View>
+    );
+  }
 
   return (
     <View className="h-full">
@@ -167,10 +100,24 @@ const FriendScreen = () => {
       </View>
 
       <FlatList
-        data={friendSuggestions}
+        data={suggestions}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
-        renderItem={({ item }) => <FriendSuggestionItem item={item} />}
+        renderItem={({ item }) => <FriendSuggestionItem item={item} onRemove={handleRemove} />}
+        onEndReached={handleLoadMore}
+        onEndReachedThreshold={0.5}
+        ListEmptyComponent={
+          <View className="flex-1 justify-center items-center py-10">
+            <Text className="text-gray-500">Không có gợi ý bạn bè nào</Text>
+          </View>
+        }
+        ListFooterComponent={
+          loadingMore ? (
+            <View className="py-4">
+              <ActivityIndicator size="small" color="#4B7BE5" />
+            </View>
+          ) : null
+        }
       />
     </View>
   );
