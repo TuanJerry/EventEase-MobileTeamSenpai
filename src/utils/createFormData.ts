@@ -53,3 +53,17 @@ async function resizeImage(uri: string, index: number) {
     type: "image/jpeg",
   };
 }
+
+export async function resizeAvatar(uri: string) {
+  const manipResult = await ImageManipulator.manipulateAsync(
+    uri,
+    [{ resize: { width: 800 } }], // Chỉ resize theo chiều ngang
+    { compress: 0.9, format: ImageManipulator.SaveFormat.JPEG }
+  );
+
+  return {
+    uri: manipResult.uri,
+    name: `avatar.jpg`,
+    type: "image/jpeg",
+  };
+}
