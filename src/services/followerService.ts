@@ -1,10 +1,11 @@
 import axiosInstance from "./axios";
 
-interface SuggestedFollower {
+export interface SuggestedFollower {
   id: string;
   name: string;
-  avatar: string;
-  mutualFriend?: string;
+  avatar: string | null;
+  mutualFriend: string;
+  createdAt: string;
 }
 
 interface SuggestedFollowersResponse {
@@ -40,10 +41,10 @@ interface FollowResponse {
 }
 
 export const followerService = {
-  getSuggestedFollowers: async (): Promise<SuggestedFollowersResponse> => {
+  getSuggestedFollowers: async (page: number = 1): Promise<SuggestedFollowersResponse> => {
     try {
       const response = await axiosInstance.get<SuggestedFollowersResponse>(
-        "/follower/get-suggested-followers"
+        `/follower/get-suggested-followers?page=${page}`
       );
       return response.data;
     } catch (error) {
@@ -56,6 +57,15 @@ export const followerService = {
       const response = await axiosInstance.post<FollowResponse>("/follower", {
         userId,
       });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  unfollowUser: async (userId: string): Promise<FollowResponse> => {
+    try {
+      const response = await axiosInstance.patch<FollowResponse>(`/follower/${userId}`);
       return response.data;
     } catch (error) {
       throw error;
