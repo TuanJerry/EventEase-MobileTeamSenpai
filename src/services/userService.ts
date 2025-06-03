@@ -36,4 +36,12 @@ export const userService = {
       },
     });
   },
+
+  updatePassword(oldPassword: string, newPassword: string, confirmPassword: string): Promise<any> {
+    return axiosInstance.put('/users/update-password', {
+      oldPassword,
+      newPassword,
+      confirmPassword,
+    });
+  },
 }; 
