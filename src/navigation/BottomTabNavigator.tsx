@@ -1,11 +1,11 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { View, TouchableOpacity, StyleSheet } from "react-native";
-import { Home, Calendar, MapPin, User, Plus } from "lucide-react-native";
+import { Home, Users, MapPin, User, Plus } from "lucide-react-native";
 
 // Screens
 import HomeStackNavigator from "./HomeStackNavigator";
-import CalendarScreen from "../screens/CalendarScreen";
+import CalendarScreen from "../screens/Friends/FriendSuggestionsScreen";
 import LocationScreen from "../screens/LocationScreen/LocationScreen";
 import ProfileStackNavigator from "./ProfileStackNavigator";
 import CreateEventScreen from "../screens/CreateAndUpdateEvent/CreateEventScreen";
@@ -52,12 +52,12 @@ export default function BottomTabNavigator() {
         }}
       />
       <Tab.Screen
-        name="Calendar"
+        name="Friends"
         component={CalendarScreen}
         options={{
           headerShown: false,
           tabBarIcon: ({ focused }) => (
-            <Calendar color={focused ? "#4B7BE5" : "#748c94"} size={24} />
+            <Users color={focused ? "#4B7BE5" : "#748c94"} size={24} />
           ),
         }}
       />

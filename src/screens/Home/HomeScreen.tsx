@@ -15,8 +15,12 @@ import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { eventService } from "../../services/eventService";
 import { useLocation } from "../../hooks/useLocation";
 import { NearbyEventListResponse } from "../../types/nearbyEvent";
+import { useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { RootStackParamList } from "../../types/navigation.types";
 
 const HomeScreen = () => {
+	const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 	const tabBarHeight = useBottomTabBarHeight();
 	const { location } = useLocation();
 	const [nearbyEvents, setNearbyEvents] = useState<NearbyEventListResponse | null>(null);
@@ -123,6 +127,7 @@ const HomeScreen = () => {
 					<TouchableOpacity
 						activeOpacity={0.8}
 						className="justify-center items-center bg-[#00f8ff] px-7 py-3 rounded-lg"
+						onPress={() => navigation.navigate('Friend')}
 					>
 						<Text className="text-white">GỢI Ý</Text>
 					</TouchableOpacity>

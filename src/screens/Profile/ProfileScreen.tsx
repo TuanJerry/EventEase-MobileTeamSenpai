@@ -48,11 +48,11 @@ export default function ProfileScreen() {
   const handleLogout = async () => {
     try {
       await authService.logout();
+      setIsLoggedIn(false);
       navigation.replace("SignIn");
     } catch (error) {
       Alert.alert("Lỗi", "Không thể đăng xuất, vui lòng thử lại");
     }
-    setIsLoggedIn(false);
   };
 
   return (
